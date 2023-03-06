@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(prediction)
 
+add_compile_options(-std=c++2a )
+set(gflags_DIR ${PROJECT_SOURCE_DIR}/third_party/gflags/lib/cmake/gflags)
+set(glog_DIR ${PROJECT_SOURCE_DIR}/third_party/glog/lib/cmake/glog)
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 
@@ -9,6 +12,7 @@ project(prediction)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  glog
 )
 
 ## System dependencies are found with CMake's conventions
@@ -113,6 +117,10 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
+include_directories(include)
+include_directories(lib)
+include_directories(src)
+
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
@@ -132,7 +140,20 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/prediction_node.cpp)
+set(THIRD_PARTY_LIBS
+        tinyxml
+        glog::glog
+        )
 
+add_executable(${PROJECT_NAME}_node
+        lib/tinyxml2.h
+        lib/tinyxml2.cpp
+        include/prediction/common_include.h
+        src/hdmap/entity/map_lane.h
+        src/hdmap/entity/map_geometry.h
+        src/hdmap/entity/map_road.h
+        src/main.cpp)
+target_link_libraries(${PROJECT_NAME}_node ${THIRD_PARTY_LIBS})
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use

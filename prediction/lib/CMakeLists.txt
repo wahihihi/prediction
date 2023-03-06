@@ -1,0 +1,3 @@
+set(LIBTINYXML2_SRC tinyxml2.cpp)
+set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+add_library(tinyxml SHARED ${LIBTINYXML2_SRC})
