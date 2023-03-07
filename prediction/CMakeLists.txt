@@ -149,6 +149,17 @@ add_executable(${PROJECT_NAME}_node
         lib/tinyxml2.h
         lib/tinyxml2.cpp
         include/prediction/common_include.h
+        src/hdmap/parser/xml_parse_util.cpp
+        src/hdmap/parser/xml_parse_util.h
+        src/hdmap/parser/common_define.h
+        src/hdmap/parser/lane_xml_parser.cpp
+        src/hdmap/parser/lane_xml_parser.h
+        src/hdmap/parser/road_xml_parser.cpp
+        src/hdmap/parser/road_xml_parser.h
+        src/hdmap/parser/header_xml_parser.cpp
+        src/hdmap/parser/header_xml_parser.h
+        src/hdmap/adapter/opendrive_adapter.cpp
+        src/hdmap/adapter/opendrive_adapter.h
         src/hdmap/entity/map_lane.h
         src/hdmap/entity/map_geometry.h
         src/hdmap/entity/map_road.h

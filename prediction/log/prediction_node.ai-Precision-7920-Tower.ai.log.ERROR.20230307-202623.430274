@@ -1,0 +1,5 @@
+Log file created at: 2023/03/07 20:26:23
+Running on machine: ai-Precision-7920-Tower
+Running duration (h:mm:ss): 0:00:00
+Log line format: [IWEF]yyyymmdd hh:mm:ss.uuuuuu threadid file:line] msg
+E20230307 20:26:23.932610 430274 lane_xml_parser.cpp:16] >>>>>>>>>>>>>>>> lane xml parser run

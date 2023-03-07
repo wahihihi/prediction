@@ -7,4 +7,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <cmath>
+#include "glog/logging.h"
+#include "tinyxml2.h"
 #endif //PREDICTION_COMMON_INCLUDE_H

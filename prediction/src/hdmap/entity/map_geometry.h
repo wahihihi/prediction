@@ -5,11 +5,17 @@
 #ifndef PREDICTION_MAP_GEOMETRY_H
 #define PREDICTION_MAP_GEOMETRY_H
 #include "prediction/common_include.h"
-
+namespace aptiv{
+namespace hdmap{
+namespace entity{
 struct PointENU{
+    PointENU() = default;
+    PointENU(double _x, double _y, double _z,double _s, double _hdg):x(_x),y(_y),z(_z),s(_s),hdg(_hdg){}
     double x;
     double y;
     double z;
+    double s;
+    double hdg;
 };
 
 struct LineSegment{
@@ -17,6 +23,7 @@ struct LineSegment{
 };
 
 struct CurveSegment{
+    CurveSegment() = default;
     enum CurveType{
         CurveType_None,
         CurveType_Line,
@@ -35,4 +42,7 @@ struct CurveSegment{
 struct Curve{
     std::vector<CurveSegment> segment;
 };
+}
+}
+}
 #endif //PREDICTION_MAP_GEOMETRY_H

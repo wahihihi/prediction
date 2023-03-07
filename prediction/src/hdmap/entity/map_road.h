@@ -9,25 +9,9 @@
 #include "prediction/common_include.h"
 #include "hdmap/entity/map_geometry.h"
 
-struct Projection {
-    std::string proj;
-};
-
-struct Header{
-    std::string version ;
-    std::string date;
-    std::shared_ptr<Projection> projection;
-    size_t revMajor;
-    size_t revMinor;
-    std::string name;
-    double north = 0.0;
-    double south = 0.0;
-    double east = 0.0;
-    double west = 0.0;
-    std::string vendor;
-};
-
-
+namespace aptiv{
+namespace hdmap{
+namespace entity{
 
 struct BoundaryEdge{
     Curve curve;
@@ -54,15 +38,30 @@ struct RoadSection{
     RoadBoundary boundary;
 };
 
-struct SpeedLimit{
-    std::string max;
-    std::string unit;
+struct Successor {
+    std::string elementType;
+    int elementId;
+    std::string contactPoint;
+};
+
+struct Predecesor {
+    std::string elementType;
+    int elementId;
+    std::string contactPoint;
+};
+
+struct Link {
+    Predecesor predecesor;
+    Successor successor;
 };
 
 struct Road {
     std::string id;
+    std::string name;
+    double length;
     std::vector<RoadSection> section;
     std::string junctionId;
+    double speed_max;
 
     enum RoadType{
         RoadType_UNKNOWN,
@@ -72,6 +71,9 @@ struct Road {
     };
     RoadType type = RoadType::RoadType_UNKNOWN;
 
-    SpeedLimit speed;
+    Link link;
 };
+}
+}
+}
 #endif //PREDICTION_MAP_ROAD_H
