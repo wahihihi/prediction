@@ -31,6 +31,14 @@ struct LaneWidth{
 
 };
 
+struct LaneOffset{
+    double s;
+    double a;
+    double b;
+    double c;
+    double d;
+};
+
 struct Lane{
     std::string id;
     Curve central_curve;

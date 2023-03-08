@@ -11,29 +11,34 @@
 namespace aptiv {
 namespace hdmap {
 namespace parser {
-using Header = aptiv::hdmap::entity::Header;
-using Road = aptiv::hdmap::entity::Road;
-using RoadSection = aptiv::hdmap::entity::RoadSection;
-using Lane = aptiv::hdmap::entity::Lane;
+using MpHeader = aptiv::hdmap::entity::Header;
+using MpRoad = aptiv::hdmap::entity::Road;
+using MpRoadSection = aptiv::hdmap::entity::RoadSection;
+using MpLane = aptiv::hdmap::entity::Lane;
+using MpLaneOffSet = aptiv::hdmap::entity::LaneOffset;
 
 
 struct LaneInternal {
-    Lane lane;
+    MpLane lane;
+    bool isCenter = false;
+    bool isMostLeft = false;
+    bool isMostRight = false;
 };
 
 struct RoadSectionInternal {
     std::string id;
-    RoadSection section;
+    MpRoadSection section;
     std::vector<LaneInternal> lanes;
 };
 
 struct RoadInternal {
     std::string id;
-    Road road;
+    MpRoad road;
 
     bool in_junction;
     std::string junction_id;
     std::string type;
+    std::vector<MpLaneOffSet> laneOffsetSet;
     std::vector<RoadSectionInternal> sections;
 
     RoadInternal() : in_junction(false) { junction_id = ""; }

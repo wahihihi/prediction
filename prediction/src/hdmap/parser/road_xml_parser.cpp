@@ -122,12 +122,35 @@ int RoadXmlParser::Parse(const tinyxml2::XMLElement &node, std::vector<RoadInter
             while (geometry_node){
                 CurveSegment curveSegment;
                 XmlParserUtil::ParseGeometry(*geometry_node,&curveSegment);
+
                 std::string id_str = roadInternal.id;
+                reference_line.segment.push_back(curveSegment);
+                LOG(ERROR)<< "----------------REFERECE LINE START ------------------";
+                LOG(ERROR)<< "ROAD ID : " << roadInternal.id;
+                for (int i = 0; i < curveSegment.lineSegment.points.size(); ++i) {
+                    PointENU point = curveSegment.lineSegment.points[i];
+                    LOG(ERROR)<< point.x <<","<<point.y;
+                }
+                LOG(ERROR)<< "----------------REFERECE LINE END ------------------";
                 //lanes
                 LaneXmlParser::Parse(*road_node,id_str,&roadInternal.sections,curveSegment);
-                reference_line.segment.push_back(curveSegment);
                 geometry_node = geometry_node->NextSiblingElement("geometry");
             }
+//            CurveSegment curveSegment_;
+//            for (int i = 0; i < reference_line.segment.size(); ++i) {
+//                CurveSegment curveSegment__ = reference_line.segment[i];
+//                for (int j = 0; j < curveSegment__.lineSegment.points.size(); ++j) {
+//                    PointENU pointEnu = curveSegment__.lineSegment.points[j];
+//                    curveSegment_.lineSegment.points.push_back(pointEnu);
+//                }
+//            }
+//            LOG(ERROR)<< "----------------REFERECE LINE START ------------------";
+//            LOG(ERROR)<< "ROAD ID : " << roadInternal.id;
+//            for (int i = 0; i < curveSegment_.lineSegment.points.size(); ++i) {
+//                PointENU point = curveSegment_.lineSegment.points[i];
+//                LOG(ERROR)<< point.x <<","<<point.y;
+//            }
+//            LOG(ERROR)<< "----------------REFERECE LINE END ------------------";
         }
 
         road_node = road_node->NextSiblingElement("road");

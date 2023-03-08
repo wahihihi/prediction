@@ -23,32 +23,21 @@ public:
 private:
     static int ParseLaneSection(const tinyxml2::XMLElement& xml_node,
                                std::vector<LaneInternal>* lanes,
-                                double sOffset,
                                 double d_offset,
                                aptiv::hdmap::entity::CurveSegment curveSegment);
 
     static int ParseSectionBoundary(const tinyxml2::XMLElement& xml_node,
                                     BoundaryPolygon* boundary);
     static int ParseLane(const tinyxml2::XMLElement& xml_node,
-                         LaneInternal* lane_internal,
-                         double sOffset,
-                         double d_offset,
-                         aptiv::hdmap::entity::CurveSegment curveSegment);
+                         Lane* lane);
     static int ParseCenterLane(const tinyxml2::XMLElement& xml_node,
-                         LaneInternal* lane_internal,
-                         double sOffset,
-                         double d_offset,
-                         aptiv::hdmap::entity::CurveSegment curveSegment);
-    static int ParseCenterCurve(const tinyxml2::XMLElement& xml_node,
-                                Lane* lane,
-                                double sOffset,
+                         LaneInternal* lane_internal);
+    static int ParseCenterCurve(Lane* lane,
                                 double d_offset,
                                 aptiv::hdmap::entity::CurveSegment curveSegment);
-    static int ParseCurve(const tinyxml2::XMLElement& xml_node,
-                                Lane* lane,
-                                double sOffset,
-                                double d_offset,
-                                aptiv::hdmap::entity::CurveSegment curveSegment);
+    static int ParseCurve(Lane* lane,
+                            double d_offset,
+                            aptiv::hdmap::entity::CurveSegment curveSegment);
     static int ParseLeftRoadSampleAssociates(
             const tinyxml2::XMLElement& xml_node, Lane* lane);
     static int ParseRightRoadSampleAssociates(

@@ -55,7 +55,6 @@ int XmlParserUtil::ParseCurve(const tinyxml2::XMLElement& xml_node,
 
     if (checker == tinyxml2::XML_SUCCESS) {
 
-
         const tinyxml2::XMLElement* line_node = xml_node.FirstChildElement("line");
         if (line_node){
             curve_segment->s = s;
@@ -76,8 +75,19 @@ int XmlParserUtil::ParseCurve(const tinyxml2::XMLElement& xml_node,
             if (arc_node){
                 double curvature;
 
+                curve_segment->s = s;
+
+                double output_x = 0.0;
+                double output_y = 0.0;
+                double output_z = 0.0;
+
+                PointENU pointEnu(ptx,pty,ptz,s,hdg);
+//        WGS84ToUTM(ptx, pty, ptz, &output_x, &output_y, &output_z);
+                curve_segment->start_position = pointEnu;
+                curve_segment->length = length;
+                curve_segment->heading = hdg;
                 int checker = tinyxml2::XML_SUCCESS;
-                checker += xml_node.QueryDoubleAttribute("curvature", &curvature);
+                checker += arc_node->QueryDoubleAttribute("curvature", &curvature);
                 ParsePointSet(*curve_segment, &curve_segment->lineSegment,curvature);
                 return 0;
             }
@@ -101,8 +111,8 @@ int XmlParserUtil::ParsePointSet(const aptiv::hdmap::entity::CurveSegment &curve
     for (int i = 0; i < sample_num; ++i) {
         double x = curveSegment.start_position.x + (delta_s * i) * cos(curveSegment.heading);
         double y = curveSegment.start_position.y + (delta_s * i) * sin(curveSegment.heading);
-        s += delta_s;
         PointENU point(x,y,0,s,curveSegment.heading);
+        s += delta_s;
         line_segment->points.push_back(point);
     }
 }
@@ -121,12 +131,13 @@ int XmlParserUtil::ParsePointSet(const aptiv::hdmap::entity::CurveSegment &curve
     double cos_hdg = cos(curveSegment.heading);
     int sample_num = int(curveSegment.length/delta_s);
     for (int i = 0; i < sample_num; ++i) {
-        const double angle_at_s = delta_s * curvature - M_PI / 2;
+        const double ref_line_ds = delta_s * i;
+        const double angle_at_s = ref_line_ds * curvature - M_PI / 2;
         const double xd = radius * (cos(hdg + angle_at_s) - sin_hdg) + x;
         const double yd = radius * (sin(hdg + angle_at_s) + cos_hdg) + y;
         const double tangent = hdg + delta_s * curvature;
-        s += delta_s;
         PointENU pointEnu(xd,yd,0,s,tangent);
+        s += ref_line_ds;
         line_segment->points.push_back(pointEnu);
     }
 
