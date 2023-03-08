@@ -37,7 +37,7 @@ struct CurveSegment{
     PointENU start_position;
     double heading;
     double length;
-    size_t idx_offset = 0;
+    double current_sOffset = 0;
 };
 
 struct Curve{

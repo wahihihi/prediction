@@ -40,11 +40,16 @@ int LaneXmlParser::Parse(const tinyxml2::XMLElement &xml_node,
         lane_offset.b = b;
         lane_offset.c = c;
         lane_offset.d = d;
+
+        if (sOffset > curveSegment.length){
+            break;
+        }
         d_offset += lane_offset.a +
                     lane_offset.b * lane_offset.s +
                     lane_offset.c * pow(lane_offset.s,2) +
                     lane_offset.d * pow(lane_offset.s,3);
 
+        curveSegment.current_sOffset = sOffset;
         const tinyxml2::XMLElement* laneSection_node = lanes_node->FirstChildElement("laneSection");
         ParseLaneSection(*laneSection_node,&sectionInternal.lanes,d_offset,curveSegment);
 
@@ -53,7 +58,6 @@ int LaneXmlParser::Parse(const tinyxml2::XMLElement &xml_node,
         sectionInternal.section.id = section_id;
         lane_offset_arr.push_back(lane_offset);
         laneOffset_node = laneOffset_node->NextSiblingElement("laneOffset");
-
 
         section->push_back(sectionInternal);
     }
@@ -143,7 +147,8 @@ int LaneXmlParser::ParseLaneSection(const tinyxml2::XMLElement &xml_node,
             Lane lane_ = lane_internals[i].lane;
             // program lane
             int idx_poly = 0;
-            double curveSegment_s = curveSegment.s;
+            const double curveSegment_s = curveSegment.s;
+            const double current_Offset = curveSegment.current_sOffset;
             for (size_t k = 0; k < lane_.lane_widths.size(); ++k) {
                 if (k == lane_.lane_widths.size() - 1){
                     idx_poly = k;
@@ -156,7 +161,7 @@ int LaneXmlParser::ParseLaneSection(const tinyxml2::XMLElement &xml_node,
             }
             LaneWidth laneWidth_ = lane_.lane_widths[idx_poly];
             double sOffset = laneWidth_.sOffset;
-            double ds = curveSegment_s - s_section_ - sOffset;
+            double ds = curveSegment_s - sOffset - sOffset;
             double calc_width = laneWidth_.a + laneWidth_.b * ds + laneWidth_.c * pow(ds,2) + laneWidth_.d * pow(ds,3);
             double total_width = acc_width + calc_width;
             // compute curve
@@ -227,6 +232,7 @@ int LaneXmlParser::ParseLaneSection(const tinyxml2::XMLElement &xml_node,
             // program lane
             int idx_poly = 0;
             double curveSegment_s = curveSegment.s;
+            double current_sOffset = curveSegment.current_sOffset;
             for (size_t k = 0; k < lane_.lane_widths.size(); ++k) {
                 if (k == lane_.lane_widths.size() - 1){
                     idx_poly = k;
@@ -239,7 +245,7 @@ int LaneXmlParser::ParseLaneSection(const tinyxml2::XMLElement &xml_node,
             }
             LaneWidth laneWidth_ = lane_.lane_widths[idx_poly];
             double sOffset = laneWidth_.sOffset;
-            double ds = curveSegment_s - s_section_ - sOffset;
+            double ds = curveSegment_s - current_sOffset - sOffset;
             double calc_width = laneWidth_.a + laneWidth_.b * ds + laneWidth_.c * pow(ds,2) + laneWidth_.d * pow(ds,3);
             double total_width = acc_width - calc_width;
             // compute curve
