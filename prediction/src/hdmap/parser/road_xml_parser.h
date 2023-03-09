@@ -17,7 +17,7 @@ namespace parser{
 
 class RoadXmlParser {
 public:
-    static int Parse(const tinyxml2::XMLElement& node,std::vector<RoadInternal>* roads);
+    static int Parse(const tinyxml2::XMLElement& node,RoadInternal* roads);
 private:
     static void Parse_road_objects(const tinyxml2::XMLElement& node,RoadInternal* road_info );
     static int to_road_type(std::string type,Road::RoadType roadType);

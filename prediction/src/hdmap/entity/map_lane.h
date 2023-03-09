@@ -40,6 +40,8 @@ struct LaneOffset{
 };
 
 struct Lane{
+public:
+    Lane() = default;
     std::string id;
     Curve central_curve;
     LaneBoundary left_boundary;

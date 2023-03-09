@@ -26,7 +26,9 @@ bool OpendriveAdapter::LoadData(const std::string &filename, std::shared_ptr<apt
 
     //road node
     std::vector<RoadInternal> roads;
-    RoadXmlParser::Parse(*root_node,&roads);
+    RoadInternal roadInternal;
+    RoadXmlParser::Parse(*root_node,&roadInternal);
+    roads.push_back(roadInternal);
     return true;
 }
 }

@@ -18,7 +18,7 @@ class LaneXmlParser {
 public:
     static int Parse(const tinyxml2::XMLElement& xml_node,
                      const std::string id,
-                     std::vector<RoadSectionInternal>* section,
+                     std::vector<RoadSectionInternal>* roadSections,
                      aptiv::hdmap::entity::CurveSegment curveSegment);
 private:
     static int ParseLaneSection(const tinyxml2::XMLElement& xml_node,
@@ -29,13 +29,16 @@ private:
     static int ParseSectionBoundary(const tinyxml2::XMLElement& xml_node,
                                     BoundaryPolygon* boundary);
     static int ParseLane(const tinyxml2::XMLElement& xml_node,
-                         Lane* lane);
+                         MpLane* lane);
     static int ParseCenterLane(const tinyxml2::XMLElement& xml_node,
                          LaneInternal* lane_internal);
-    static int ParseCenterCurve(Lane* lane,
+    static int ParseCenterCurve(LaneInternal* laneInternal,
                                 double d_offset,
                                 aptiv::hdmap::entity::CurveSegment curveSegment);
-    static int ParseCurve(Lane* lane,
+    static int ParseCurveArc(MpLane* lane,
+                          double d_offset,
+                          aptiv::hdmap::entity::CurveSegment curveSegment);
+    static int ParseCurve(MpLane* lane,
                             double d_offset,
                             aptiv::hdmap::entity::CurveSegment curveSegment);
     static int ParseLeftRoadSampleAssociates(

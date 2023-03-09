@@ -16,6 +16,7 @@ struct PointENU{
     double z;
     double s;
     double hdg;
+    double curveture = 0.0;
 };
 
 struct LineSegment{
@@ -34,10 +35,10 @@ struct CurveSegment{
 
 
     double s;
+    double laneOffset;
     PointENU start_position;
     double heading;
     double length;
-    double current_sOffset = 0;
 };
 
 struct Curve{

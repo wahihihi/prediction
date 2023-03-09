@@ -89,6 +89,7 @@ int XmlParserUtil::ParseCurve(const tinyxml2::XMLElement& xml_node,
                 int checker = tinyxml2::XML_SUCCESS;
                 checker += arc_node->QueryDoubleAttribute("curvature", &curvature);
                 ParsePointSet(*curve_segment, &curve_segment->lineSegment,curvature);
+
                 return 0;
             }
         }
@@ -121,25 +122,39 @@ int XmlParserUtil::ParsePointSet(const aptiv::hdmap::entity::CurveSegment &curve
                                  aptiv::hdmap::entity::LineSegment *line_segment,
                                  double curvature) {
 
-    double delta_s = 0.2;
-    double x = curveSegment.start_position.x;
-    double y = curveSegment.start_position.y;
+//    double delta_s = 0.2;
+//    double x = curveSegment.start_position.x;
+//    double y = curveSegment.start_position.y;
+//    double s = curveSegment.s;
+//    double radius = 1 / curvature;
+//    double sin_hdg = sin(curveSegment.heading);
+//    double cos_hdg = cos(curveSegment.heading);
+//    int sample_num = int(curveSegment.length/delta_s);
+//    std::shared_ptr<PointENU> previous_point_ptr;
+//    for (int i = 0; i < sample_num; ++i) {
+//        const double ref_line_ds = delta_s * i;
+//        const double angle_at_s = ref_line_ds * curvature - M_PI / 2;
+//        const double xd = radius * (cos(hdg + angle_at_s) - sin_hdg) + x;
+//        const double yd = radius * (sin(hdg + angle_at_s) + cos_hdg) + y;
+//        const double tangent = hdg + delta_s * curvature;
+//        if (previous_point_ptr != nullptr){
+//            s += hypot((xd - previous_point_ptr->x),(yd - previous_point_ptr->y));
+//        }
+//        PointENU* pointEnu = new PointENU(xd,yd,0,s,curveSegment.heading);
+//        pointEnu->curveture = curvature;
+//        previous_point_ptr.reset(pointEnu);
+//        line_segment->points.push_back(*pointEnu);
+//    }
+    double curveture_ = curvature;
     double s = curveSegment.s;
-    double radius = 1 / curvature;
-    double hdg = curveSegment.heading;
-    double sin_hdg = sin(curveSegment.heading);
-    double cos_hdg = cos(curveSegment.heading);
+    double hdg = curveSegment.heading - M_PI / 2;
+    double angle = 2 / curvature * sin(s * curvature/2);
+    double alpha = (M_PI - s * curvature) / 2 - hdg;
+
+    double dx = -1 * angle * cos(alpha);
+    double dy = alpha * sin(alpha);
+    double delta_s = 0.2;
     int sample_num = int(curveSegment.length/delta_s);
-    for (int i = 0; i < sample_num; ++i) {
-        const double ref_line_ds = delta_s * i;
-        const double angle_at_s = ref_line_ds * curvature - M_PI / 2;
-        const double xd = radius * (cos(hdg + angle_at_s) - sin_hdg) + x;
-        const double yd = radius * (sin(hdg + angle_at_s) + cos_hdg) + y;
-        const double tangent = hdg + delta_s * curvature;
-        PointENU pointEnu(xd,yd,0,s,tangent);
-        s += ref_line_ds;
-        line_segment->points.push_back(pointEnu);
-    }
 
 }
 }
