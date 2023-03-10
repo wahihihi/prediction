@@ -58,7 +58,7 @@ int LaneXmlParser::Parse(const tinyxml2::XMLElement &xml_node,
     for (size_t i = 0; i < lane_offset_arr.size(); ++i) {
         RoadSectionInternal road_section_internal;
         LaneOffset lane_offset = lane_offset_arr[i];
-        start_point = curveSegment.lineSegment.points[split_idx];
+        start_point = curveSegment.start_position;
         // the last lane offset then get point until end
         if ((i+1) == curveSegment.lineSegment.points.size()){
             std::vector<PointENU>::const_iterator begin = curveSegment.lineSegment.points.begin() + split_idx;
@@ -125,17 +125,17 @@ int LaneXmlParser::ParseLaneSection(const tinyxml2::XMLElement &xml_node,
             // center curve
             std::shared_ptr<MpLane> lane_ptr_(new MpLane());
             ParseCenterCurve(&lane_internal,d_offset,curveSegment);
-//            LOG(ERROR)<< "----------- CENTER START --------------";
-//            CurveSegment curveSegment = lane_internal.lane.central_curve.segment[0];
-//            for (int i = 0; i < curveSegment.lineSegment.points.size(); ++i) {
-//                PointENU pointEnu(curveSegment.lineSegment.points[i].x,
-//                                  curveSegment.lineSegment.points[i].y,
-//                                  curveSegment.lineSegment.points[i].z,
-//                                  curveSegment.lineSegment.points[i].s,
-//                                  curveSegment.lineSegment.points[i].hdg);
-//                LOG(ERROR) << pointEnu.x << "," << pointEnu.y;
-//            }
-//            LOG(ERROR)<< "----------- CENTER END --------------";
+            LOG(ERROR)<< "----------- CENTER START --------------";
+            CurveSegment curveSegment = lane_internal.lane.central_curve.segment[0];
+            for (int i = 0; i < curveSegment.lineSegment.points.size(); ++i) {
+                PointENU pointEnu(curveSegment.lineSegment.points[i].x,
+                                  curveSegment.lineSegment.points[i].y,
+                                  curveSegment.lineSegment.points[i].z,
+                                  curveSegment.lineSegment.points[i].s,
+                                  curveSegment.lineSegment.points[i].hdg);
+                LOG(ERROR) << pointEnu.x << "," << pointEnu.y;
+            }
+            LOG(ERROR)<< "----------- CENTER END --------------";
         }
         lane_internal.isCenter = true;
         lanes->push_back(lane_internal);
@@ -450,12 +450,13 @@ int LaneXmlParser::ParseCenterCurve(LaneInternal* laneInternal,
                                     double d_offset,
                                     CurveSegment curveSegment) {
     CurveSegment res_curveSegment;
-    PointENU previous_point(0,0,0,0,0);;
+    PointENU previous_point(0,0,0,0,0);
+    PointENU start_point = curveSegment.start_position;
     for (size_t j = 0; j < curveSegment.lineSegment.points.size(); ++j) {
         PointENU pointEnu = curveSegment.lineSegment.points[j];
-        const double x = pointEnu.x - d_offset * sin(pointEnu.hdg);
-        const double y = pointEnu.y - d_offset * cos(pointEnu.hdg);
-        PointENU point(x,y,0,0,pointEnu.hdg);
+        const double x = pointEnu.x - d_offset * sin(start_point.hdg);
+        const double y = pointEnu.y + d_offset * cos(start_point.hdg);
+        PointENU point(x,y,0,0,start_point.hdg);
         if (j == 0){
             previous_point = point;
         } else {

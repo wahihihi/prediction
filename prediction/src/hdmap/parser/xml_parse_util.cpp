@@ -59,16 +59,14 @@ int XmlParserUtil::ParseCurve(const tinyxml2::XMLElement& xml_node,
         if (line_node){
             curve_segment->s = s;
 
-            double output_x = 0.0;
-            double output_y = 0.0;
-            double output_z = 0.0;
-
             PointENU pointEnu(ptx,pty,ptz,s,hdg);
 //        WGS84ToUTM(ptx, pty, ptz, &output_x, &output_y, &output_z);
             curve_segment->start_position = pointEnu;
             curve_segment->length = length;
             curve_segment->heading = hdg;
-            ParsePointSet(*curve_segment, &curve_segment->lineSegment);
+            LineSegment lineSegment;
+            ParsePointSet(*curve_segment, &lineSegment);
+            curve_segment->lineSegment = lineSegment;
             return 0;
         } else {
             const tinyxml2::XMLElement* arc_node = xml_node.FirstChildElement("arc");
@@ -76,10 +74,6 @@ int XmlParserUtil::ParseCurve(const tinyxml2::XMLElement& xml_node,
                 double curvature;
 
                 curve_segment->s = s;
-
-                double output_x = 0.0;
-                double output_y = 0.0;
-                double output_z = 0.0;
 
                 PointENU pointEnu(ptx,pty,ptz,s,hdg);
 //        WGS84ToUTM(ptx, pty, ptz, &output_x, &output_y, &output_z);
@@ -110,8 +104,8 @@ int XmlParserUtil::ParsePointSet(const aptiv::hdmap::entity::CurveSegment &curve
     int sample_num = int(curveSegment.length/delta_s);
 
     for (int i = 0; i < sample_num; ++i) {
-        double x = curveSegment.start_position.x + (delta_s * i) * cos(curveSegment.heading);
-        double y = curveSegment.start_position.y + (delta_s * i) * sin(curveSegment.heading);
+        double x = curveSegment.start_position.x + (delta_s * i) * cos(curveSegment.start_position.hdg);
+        double y = curveSegment.start_position.y + (delta_s * i) * sin(curveSegment.start_position.hdg);
         PointENU point(x,y,0,s,curveSegment.heading);
         s += delta_s;
         line_segment->points.push_back(point);
@@ -122,39 +116,30 @@ int XmlParserUtil::ParsePointSet(const aptiv::hdmap::entity::CurveSegment &curve
                                  aptiv::hdmap::entity::LineSegment *line_segment,
                                  double curvature) {
 
-//    double delta_s = 0.2;
-//    double x = curveSegment.start_position.x;
-//    double y = curveSegment.start_position.y;
-//    double s = curveSegment.s;
-//    double radius = 1 / curvature;
-//    double sin_hdg = sin(curveSegment.heading);
-//    double cos_hdg = cos(curveSegment.heading);
-//    int sample_num = int(curveSegment.length/delta_s);
-//    std::shared_ptr<PointENU> previous_point_ptr;
-//    for (int i = 0; i < sample_num; ++i) {
-//        const double ref_line_ds = delta_s * i;
-//        const double angle_at_s = ref_line_ds * curvature - M_PI / 2;
-//        const double xd = radius * (cos(hdg + angle_at_s) - sin_hdg) + x;
-//        const double yd = radius * (sin(hdg + angle_at_s) + cos_hdg) + y;
-//        const double tangent = hdg + delta_s * curvature;
-//        if (previous_point_ptr != nullptr){
-//            s += hypot((xd - previous_point_ptr->x),(yd - previous_point_ptr->y));
-//        }
-//        PointENU* pointEnu = new PointENU(xd,yd,0,s,curveSegment.heading);
-//        pointEnu->curveture = curvature;
-//        previous_point_ptr.reset(pointEnu);
-//        line_segment->points.push_back(*pointEnu);
-//    }
-    double curveture_ = curvature;
-    double s = curveSegment.s;
-    double hdg = curveSegment.heading - M_PI / 2;
-    double angle = 2 / curvature * sin(s * curvature/2);
-    double alpha = (M_PI - s * curvature) / 2 - hdg;
-
-    double dx = -1 * angle * cos(alpha);
-    double dy = alpha * sin(alpha);
     double delta_s = 0.2;
+    double x = curveSegment.start_position.x;
+    double y = curveSegment.start_position.y;
+    double s = curveSegment.s;
+    double hdg = curveSegment.heading;
+    double radius = 1 / curvature;
+    double sin_hdg = sin(curveSegment.heading);
+    double cos_hdg = cos(curveSegment.heading);
     int sample_num = int(curveSegment.length/delta_s);
+    std::shared_ptr<PointENU> previous_point_ptr;
+    for (int i = 0; i < sample_num; ++i) {
+        const double ref_line_ds = delta_s * i;
+        const double angle_at_s = ref_line_ds * curvature - M_PI / 2;
+        const double xd = radius * (cos(hdg + angle_at_s) - sin_hdg) + x;
+        const double yd = radius * (sin(hdg + angle_at_s) + cos_hdg) + y;
+        const double tangent = hdg + delta_s * curvature;
+        if (previous_point_ptr != nullptr){
+            s += hypot((xd - previous_point_ptr->x),(yd - previous_point_ptr->y));
+        }
+        PointENU* pointEnu = new PointENU(xd,yd,0,s,tangent);
+        pointEnu->curveture = curvature;
+        previous_point_ptr.reset(pointEnu);
+        line_segment->points.push_back(*pointEnu);
+    }
 
 }
 }

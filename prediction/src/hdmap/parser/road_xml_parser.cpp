@@ -124,17 +124,19 @@ int RoadXmlParser::Parse(const tinyxml2::XMLElement &node, RoadInternal* roads) 
 
                 std::string id_str = roadInternal.id;
                 reference_line.segment.push_back(curveSegment);
-//                LOG(ERROR)<< "----------------REFERECE LINE START ------------------";
-//                LOG(ERROR)<< "ROAD ID : " << roadInternal.id;
-//                for (int i = 0; i < curveSegment.lineSegment.points.size(); ++i) {
-//                    PointENU point = curveSegment.lineSegment.points[i];
-//                    LOG(ERROR)<< point.x <<","<<point.y;
-//                }
-//                LOG(ERROR)<< "----------------REFERECE LINE END ------------------";
+                LOG(ERROR)<< "----------------REFERECE LINE START ------------------";
+                LOG(ERROR)<< "ROAD ID : " << roadInternal.id;
+                for (int i = 0; i < curveSegment.lineSegment.points.size(); ++i) {
+                    PointENU point = curveSegment.lineSegment.points[i];
+                    LOG(ERROR)<< point.x <<","<<point.y;
+                }
+                LOG(ERROR)<< "----------------REFERECE LINE END ------------------";
                 geometry_node = geometry_node->NextSiblingElement("geometry");
             }
             //get all reference line point to one curve segment
             CurveSegment curveSegment_;
+            PointENU start_point = reference_line.segment.at(0).start_position;
+            curveSegment_.start_position = start_point;
             for (int i = 0; i < reference_line.segment.size(); ++i) {
                 CurveSegment curveSegment__ = reference_line.segment[i];
                 for (int j = 0; j < curveSegment__.lineSegment.points.size(); ++j) {
@@ -142,17 +144,17 @@ int RoadXmlParser::Parse(const tinyxml2::XMLElement &node, RoadInternal* roads) 
                     curveSegment_.lineSegment.points.push_back(pointEnu);
                 }
             }
+
+//            LOG(ERROR)<< "----------------REFERECE LINE START ------------------";
+//            LOG(ERROR)<< "ROAD ID : " << roadInternal.id;
+//            for (int i = 0; i < curveSegment_.lineSegment.points.size(); ++i) {
+//                PointENU point = curveSegment_.lineSegment.points[i];
+//                LOG(ERROR)<< point.x <<","<<point.y;
+//            }
+//            LOG(ERROR)<< "----------------REFERECE LINE END ------------------";
             //lanes
             std::vector<RoadSectionInternal> road_section_internals;
             LaneXmlParser::Parse(*road_node,id_str,&road_section_internals,curveSegment_);
-
-            LOG(ERROR)<< "----------------REFERECE LINE START ------------------";
-            LOG(ERROR)<< "ROAD ID : " << roadInternal.id;
-            for (int i = 0; i < curveSegment_.lineSegment.points.size(); ++i) {
-                PointENU point = curveSegment_.lineSegment.points[i];
-                LOG(ERROR)<< point.x <<","<<point.y;
-            }
-            LOG(ERROR)<< "----------------REFERECE LINE END ------------------";
         }
 
         road_node = road_node->NextSiblingElement("road");
