@@ -98,6 +98,23 @@ int LaneXmlParser::Parse(const tinyxml2::XMLElement &xml_node,
         roadSections->push_back(road_section_internal);
         line_segment.points.erase(line_segment.points.begin(),line_segment.points.end());
     }
+    LOG(ERROR) << "--------------- CENTER LINE START -----------------";
+    for (int i = 0; i < roadSections->size(); ++i) {
+        RoadSectionInternal roadSectionInternal = roadSections->at(i);
+        for (int j = 0; j < roadSectionInternal.lanes.size(); ++j) {
+            LaneInternal laneInternal = roadSectionInternal.lanes.at(j);
+            MpLane lane = laneInternal.lane;
+            Curve curve = lane.central_curve;
+            for (int k = 0; k < curve.segment.size(); ++k) {
+                CurveSegment curveSegment1 = curve.segment.at(k);
+                for (int l = 0; l < curveSegment1.lineSegment.points.size(); ++l) {
+                    PointENU pointEnu = curveSegment1.lineSegment.points.at(l);
+                    LOG(ERROR) << pointEnu.x << "," << pointEnu.y;
+                }
+            }
+        }
+    }
+    LOG(ERROR) << "--------------- CENTER LINE END -----------------";
     return 1;
 }
 
@@ -125,188 +142,188 @@ int LaneXmlParser::ParseLaneSection(const tinyxml2::XMLElement &xml_node,
             // center curve
             std::shared_ptr<MpLane> lane_ptr_(new MpLane());
             ParseCenterCurve(&lane_internal,d_offset,curveSegment);
-            LOG(ERROR)<< "----------- CENTER START --------------";
-            CurveSegment curveSegment = lane_internal.lane.central_curve.segment[0];
-            for (int i = 0; i < curveSegment.lineSegment.points.size(); ++i) {
-                PointENU pointEnu(curveSegment.lineSegment.points[i].x,
-                                  curveSegment.lineSegment.points[i].y,
-                                  curveSegment.lineSegment.points[i].z,
-                                  curveSegment.lineSegment.points[i].s,
-                                  curveSegment.lineSegment.points[i].hdg);
-                LOG(ERROR) << pointEnu.x << "," << pointEnu.y;
-            }
-            LOG(ERROR)<< "----------- CENTER END --------------";
+//            LOG(ERROR)<< "----------- CENTER START --------------";
+//            CurveSegment curveSegment = lane_internal.lane.central_curve.segment[0];
+//            for (int i = 0; i < curveSegment.lineSegment.points.size(); ++i) {
+//                PointENU pointEnu(curveSegment.lineSegment.points[i].x,
+//                                  curveSegment.lineSegment.points[i].y,
+//                                  curveSegment.lineSegment.points[i].z,
+//                                  curveSegment.lineSegment.points[i].s,
+//                                  curveSegment.lineSegment.points[i].hdg);
+//                LOG(ERROR) << pointEnu.x << "," << pointEnu.y;
+//            }
+//            LOG(ERROR)<< "----------- CENTER END --------------";
         }
         lane_internal.isCenter = true;
         lanes->push_back(lane_internal);
     }
 
     // left
-    const tinyxml2::XMLElement* left_node = xml_node.FirstChildElement("left");
-    if (left_node) {
-        const tinyxml2::XMLElement* lane_node = left_node->FirstChildElement("lane");
-        while (lane_node) {
-            MpLane lane;
-            const tinyxml2::XMLElement* width_node = lane_node->FirstChildElement("width");
-            std::vector<LaneWidth> laneWidths;
-            while (width_node){
-                LaneWidth width;
-                double sOffset_=0.0;
-                double a=0.0;
-                double b=0.0;
-                double c=0.0;
-                double d=0.0;
-                width_node->QueryDoubleAttribute("sOffset",&sOffset_);
-                width_node->QueryDoubleAttribute("a",&a);
-                width_node->QueryDoubleAttribute("b",&b);
-                width_node->QueryDoubleAttribute("c",&c);
-                width_node->QueryDoubleAttribute("d",&d);
-                width.sOffset = sOffset_;
-                width.a = a;
-                width.b = b;
-                width.c = c;
-                width.d = d;
-
-//                lane_internal.lane.lane_widths.push_back(width);
-                laneWidths.push_back(width);
-                width_node = width_node->NextSiblingElement("width");
-            }
-            lane.lane_widths = laneWidths;
-            ParseLane(*lane_node, &lane);
-            LaneInternal lane_internal;
-            lane_internal.lane = lane;
-            lanes->push_back(lane_internal);
-            lane_node = lane_node->NextSiblingElement("lane");
-        }
-        std::sort(lanes->begin(),lanes->end(),compare);
-        for (size_t i = 0; i < lanes->size(); ++i) {
-            MpLane lane = lanes->at(i).lane;
-            // program lane
-            int idx_poly = 0;
-            const double curveSegment_s = curveSegment.s;
-            const double curveSegment_laneOffset = curveSegment.laneOffset;
-            for (size_t k = 0; k < lane.lane_widths.size(); ++k) {
-                if (k == lane.lane_widths.size() - 1){
-                    idx_poly = k;
-                    break;
-                }
-                if (curveSegment_s >= lane.lane_widths[k].sOffset)
-                    continue;
-                idx_poly = k - 1;
-                break;
-            }
-            LaneWidth laneWidth_ = lane.lane_widths[idx_poly];
-            double sOffset = laneWidth_.sOffset;
-            double ds = curveSegment_s - curveSegment_laneOffset - sOffset;
-            double calc_width = laneWidth_.a + laneWidth_.b * ds + laneWidth_.c * pow(ds,2) + laneWidth_.d * pow(ds,3);
-            // compute curve
-            ParseCurve(&lane,calc_width,curveSegment);
-            Curve curve = lane.central_curve;
-            LaneBoundary laneBoundary;
-            laneBoundary.curve = curve;
-            lane.left_boundary = laneBoundary;
-//            LOG(ERROR)<< "----------- LEFT START --------------";
-//            LOG(ERROR)<< "lane id : " << lane_.id;
-//            std::string x_list;
-//            for (int i = 0; i < lane_.left_boundary.curve.segment[0].lineSegment.points.size(); ++i) {
-//                PointENU pointEnu(lane_.left_boundary.curve.segment[0].lineSegment.points[i].x,
-//                                  lane_.left_boundary.curve.segment[0].lineSegment.points[i].y,
-//                                  lane_.left_boundary.curve.segment[0].lineSegment.points[i].z,
-//                                  lane_.left_boundary.curve.segment[0].lineSegment.points[i].s,
-//                                  lane_.left_boundary.curve.segment[0].lineSegment.points[i].hdg);
-//                LOG(ERROR) << pointEnu.x << "," << pointEnu.y;
+//    const tinyxml2::XMLElement* left_node = xml_node.FirstChildElement("left");
+//    if (left_node) {
+//        const tinyxml2::XMLElement* lane_node = left_node->FirstChildElement("lane");
+//        while (lane_node) {
+//            MpLane lane;
+//            const tinyxml2::XMLElement* width_node = lane_node->FirstChildElement("width");
+//            std::vector<LaneWidth> laneWidths;
+//            while (width_node){
+//                LaneWidth width;
+//                double sOffset_=0.0;
+//                double a=0.0;
+//                double b=0.0;
+//                double c=0.0;
+//                double d=0.0;
+//                width_node->QueryDoubleAttribute("sOffset",&sOffset_);
+//                width_node->QueryDoubleAttribute("a",&a);
+//                width_node->QueryDoubleAttribute("b",&b);
+//                width_node->QueryDoubleAttribute("c",&c);
+//                width_node->QueryDoubleAttribute("d",&d);
+//                width.sOffset = sOffset_;
+//                width.a = a;
+//                width.b = b;
+//                width.c = c;
+//                width.d = d;
+//
+////                lane_internal.lane.lane_widths.push_back(width);
+//                laneWidths.push_back(width);
+//                width_node = width_node->NextSiblingElement("width");
 //            }
-//            LOG(ERROR)<< "----------- LEFT END --------------";
-        }
-    }
+//            lane.lane_widths = laneWidths;
+//            ParseLane(*lane_node, &lane);
+//            LaneInternal lane_internal;
+//            lane_internal.lane = lane;
+//            lanes->push_back(lane_internal);
+//            lane_node = lane_node->NextSiblingElement("lane");
+//        }
+//        std::sort(lanes->begin(),lanes->end(),compare);
+//        for (size_t i = 0; i < lanes->size(); ++i) {
+//            MpLane lane = lanes->at(i).lane;
+//            // program lane
+//            int idx_poly = 0;
+//            const double curveSegment_s = curveSegment.s;
+//            const double curveSegment_laneOffset = curveSegment.laneOffset;
+//            for (size_t k = 0; k < lane.lane_widths.size(); ++k) {
+//                if (k == lane.lane_widths.size() - 1){
+//                    idx_poly = k;
+//                    break;
+//                }
+//                if (curveSegment_s >= lane.lane_widths[k].sOffset)
+//                    continue;
+//                idx_poly = k - 1;
+//                break;
+//            }
+//            LaneWidth laneWidth_ = lane.lane_widths[idx_poly];
+//            double sOffset = laneWidth_.sOffset;
+//            double ds = curveSegment_s - curveSegment_laneOffset - sOffset;
+//            double calc_width = laneWidth_.a + laneWidth_.b * ds + laneWidth_.c * pow(ds,2) + laneWidth_.d * pow(ds,3);
+//            // compute curve
+//            ParseCurve(&lane,calc_width,curveSegment);
+//            Curve curve = lane.central_curve;
+//            LaneBoundary laneBoundary;
+//            laneBoundary.curve = curve;
+//            lane.left_boundary = laneBoundary;
+////            LOG(ERROR)<< "----------- LEFT START --------------";
+////            LOG(ERROR)<< "lane id : " << lane_.id;
+////            std::string x_list;
+////            for (int i = 0; i < lane_.left_boundary.curve.segment[0].lineSegment.points.size(); ++i) {
+////                PointENU pointEnu(lane_.left_boundary.curve.segment[0].lineSegment.points[i].x,
+////                                  lane_.left_boundary.curve.segment[0].lineSegment.points[i].y,
+////                                  lane_.left_boundary.curve.segment[0].lineSegment.points[i].z,
+////                                  lane_.left_boundary.curve.segment[0].lineSegment.points[i].s,
+////                                  lane_.left_boundary.curve.segment[0].lineSegment.points[i].hdg);
+////                LOG(ERROR) << pointEnu.x << "," << pointEnu.y;
+////            }
+////            LOG(ERROR)<< "----------- LEFT END --------------";
+//        }
+//    }
 
     // right
-    std::vector<LaneInternal> lane_internals;
-    const tinyxml2::XMLElement* right_node = xml_node.FirstChildElement("right");
-    if (right_node) {
-        const tinyxml2::XMLElement* lane_node = right_node->FirstChildElement("lane");
-        while (lane_node) {
-            MpLane lane;
-            const tinyxml2::XMLElement* width_node = lane_node->FirstChildElement("width");
-            std::vector<LaneWidth> laneWidths;
-            while (width_node){
-                LaneWidth width;
-                double sOffset_=0.0;
-                double a=0.0;
-                double b=0.0;
-                double c=0.0;
-                double d=0.0;
-                width_node->QueryDoubleAttribute("sOffset",&sOffset_);
-                width_node->QueryDoubleAttribute("a",&a);
-                width_node->QueryDoubleAttribute("b",&b);
-                width_node->QueryDoubleAttribute("c",&c);
-                width_node->QueryDoubleAttribute("d",&d);
-                width.sOffset = sOffset_;
-                width.a = a;
-                width.b = b;
-                width.c = c;
-                width.d = d;
-
-//                lane_internal.lane.lane_widths.push_back(width);
-                laneWidths.push_back(width);
-                width_node = width_node->NextSiblingElement("width");
-            }
-            lane.lane_widths = laneWidths;
-            ParseLane(*lane_node, &lane);
-            LaneInternal lane_internal;
-            lane_internal.lane = lane;
-            lane_internals.push_back(lane_internal);
-            lane_node = lane_node->NextSiblingElement("lane");
-        }
-        std::sort(lane_internals.begin(),lane_internals.end(),compare);
-        for (size_t i = 0; i < lane_internals.size(); ++i) {
-            MpLane* lane = &lane_internals.at(i).lane;
-            // program lane
-            int idx_poly = 0;
-            double curveSegment_s = curveSegment.s;
-            double curveSegment_laneOffset = curveSegment.laneOffset;
-            for (size_t k = 0; k < lane->lane_widths.size(); ++k) {
-                if (k == lane->lane_widths.size() - 1){
-                    idx_poly = k;
-                    break;
-                }
-                if (curveSegment_s >= lane->lane_widths[k].sOffset)
-                    continue;
-                idx_poly = k - 1;
-                break;
-            }
-            LaneWidth laneWidth_ = lane->lane_widths[idx_poly];
-            double sOffset = laneWidth_.sOffset;
-            double ds = curveSegment_s - curveSegment_laneOffset - sOffset;
-            double calc_width = laneWidth_.a + laneWidth_.b * ds + laneWidth_.c * pow(ds,2) + laneWidth_.d * pow(ds,3);
-            // compute curve
-            ParseCurveArc(lane,calc_width,curveSegment);
-            lane->left_boundary.curve = lane->central_curve;
-
-            LOG(ERROR)<< "----------- RIGHT START --------------";
-            LOG(ERROR)<< "lane id : " << lane->id;
-            for (int i = 0; i < curveSegment.lineSegment.points.size(); ++i) {
-                PointENU pointEnu(curveSegment.lineSegment.points[i].x,
-                                  curveSegment.lineSegment.points[i].y,
-                                  curveSegment.lineSegment.points[i].z,
-                                  curveSegment.lineSegment.points[i].s,
-                                  curveSegment.lineSegment.points[i].hdg);
-                LOG(ERROR) << pointEnu.x << "," << pointEnu.y;
-            }
-
-            LOG(ERROR) << "==================================";
-            for (int i = 0; i < lane->left_boundary.curve.segment[0].lineSegment.points.size(); ++i) {
-                PointENU pointEnu(lane->left_boundary.curve.segment[0].lineSegment.points[i].x,
-                                  lane->left_boundary.curve.segment[0].lineSegment.points[i].y,
-                                  lane->left_boundary.curve.segment[0].lineSegment.points[i].z,
-                                  lane->left_boundary.curve.segment[0].lineSegment.points[i].s,
-                                  lane->left_boundary.curve.segment[0].lineSegment.points[i].hdg);
-                LOG(ERROR) << pointEnu.x << "," << pointEnu.y;
-            }
-            LOG(ERROR)<< "----------- RIGHT END --------------";
-            lanes->push_back(lane_internals.at(i));
-        }
-    }
+//    std::vector<LaneInternal> lane_internals;
+//    const tinyxml2::XMLElement* right_node = xml_node.FirstChildElement("right");
+//    if (right_node) {
+//        const tinyxml2::XMLElement* lane_node = right_node->FirstChildElement("lane");
+//        while (lane_node) {
+//            MpLane lane;
+//            const tinyxml2::XMLElement* width_node = lane_node->FirstChildElement("width");
+//            std::vector<LaneWidth> laneWidths;
+//            while (width_node){
+//                LaneWidth width;
+//                double sOffset_=0.0;
+//                double a=0.0;
+//                double b=0.0;
+//                double c=0.0;
+//                double d=0.0;
+//                width_node->QueryDoubleAttribute("sOffset",&sOffset_);
+//                width_node->QueryDoubleAttribute("a",&a);
+//                width_node->QueryDoubleAttribute("b",&b);
+//                width_node->QueryDoubleAttribute("c",&c);
+//                width_node->QueryDoubleAttribute("d",&d);
+//                width.sOffset = sOffset_;
+//                width.a = a;
+//                width.b = b;
+//                width.c = c;
+//                width.d = d;
+//
+////                lane_internal.lane.lane_widths.push_back(width);
+//                laneWidths.push_back(width);
+//                width_node = width_node->NextSiblingElement("width");
+//            }
+//            lane.lane_widths = laneWidths;
+//            ParseLane(*lane_node, &lane);
+//            LaneInternal lane_internal;
+//            lane_internal.lane = lane;
+//            lane_internals.push_back(lane_internal);
+//            lane_node = lane_node->NextSiblingElement("lane");
+//        }
+//        std::sort(lane_internals.begin(),lane_internals.end(),compare);
+//        for (size_t i = 0; i < lane_internals.size(); ++i) {
+//            MpLane* lane = &lane_internals.at(i).lane;
+//            // program lane
+//            int idx_poly = 0;
+//            double curveSegment_s = curveSegment.s;
+//            double curveSegment_laneOffset = curveSegment.laneOffset;
+//            for (size_t k = 0; k < lane->lane_widths.size(); ++k) {
+//                if (k == lane->lane_widths.size() - 1){
+//                    idx_poly = k;
+//                    break;
+//                }
+//                if (curveSegment_s >= lane->lane_widths[k].sOffset)
+//                    continue;
+//                idx_poly = k - 1;
+//                break;
+//            }
+//            LaneWidth laneWidth_ = lane->lane_widths[idx_poly];
+//            double sOffset = laneWidth_.sOffset;
+//            double ds = curveSegment_s - curveSegment_laneOffset - sOffset;
+//            double calc_width = laneWidth_.a + laneWidth_.b * ds + laneWidth_.c * pow(ds,2) + laneWidth_.d * pow(ds,3);
+//            // compute curve
+//            ParseCurveArc(lane,calc_width,curveSegment);
+//            lane->left_boundary.curve = lane->central_curve;
+//
+//            LOG(ERROR)<< "----------- RIGHT START --------------";
+//            LOG(ERROR)<< "lane id : " << lane->id;
+//            for (int i = 0; i < curveSegment.lineSegment.points.size(); ++i) {
+//                PointENU pointEnu(curveSegment.lineSegment.points[i].x,
+//                                  curveSegment.lineSegment.points[i].y,
+//                                  curveSegment.lineSegment.points[i].z,
+//                                  curveSegment.lineSegment.points[i].s,
+//                                  curveSegment.lineSegment.points[i].hdg);
+//                LOG(ERROR) << pointEnu.x << "," << pointEnu.y;
+//            }
+//
+//            LOG(ERROR) << "==================================";
+//            for (int i = 0; i < lane->left_boundary.curve.segment[0].lineSegment.points.size(); ++i) {
+//                PointENU pointEnu(lane->left_boundary.curve.segment[0].lineSegment.points[i].x,
+//                                  lane->left_boundary.curve.segment[0].lineSegment.points[i].y,
+//                                  lane->left_boundary.curve.segment[0].lineSegment.points[i].z,
+//                                  lane->left_boundary.curve.segment[0].lineSegment.points[i].s,
+//                                  lane->left_boundary.curve.segment[0].lineSegment.points[i].hdg);
+//                LOG(ERROR) << pointEnu.x << "," << pointEnu.y;
+//            }
+//            LOG(ERROR)<< "----------- RIGHT END --------------";
+//            lanes->push_back(lane_internals.at(i));
+//        }
+//    }
     return 1;
 }
 
@@ -438,7 +455,7 @@ int LaneXmlParser::ParseCurveArc(MpLane* lane,
         const double s = pointEnu.s;
         PointENU point(x,y,0,pointEnu.s,pointEnu.hdg);
         res_curveSegment.lineSegment.points.push_back(point);
-        LOG(ERROR) << point.x << "," << point.y ;
+//        LOG(ERROR) << point.x << "," << point.y ;
 
     }
     LOG(ERROR) << "------------------CURVE ARC END------------------";
@@ -454,9 +471,9 @@ int LaneXmlParser::ParseCenterCurve(LaneInternal* laneInternal,
     PointENU start_point = curveSegment.start_position;
     for (size_t j = 0; j < curveSegment.lineSegment.points.size(); ++j) {
         PointENU pointEnu = curveSegment.lineSegment.points[j];
-        const double x = pointEnu.x - d_offset * sin(start_point.hdg);
-        const double y = pointEnu.y + d_offset * cos(start_point.hdg);
-        PointENU point(x,y,0,0,start_point.hdg);
+        const double x = pointEnu.x - d_offset * sin(pointEnu.hdg);
+        const double y = pointEnu.y + d_offset * cos(pointEnu.hdg);
+        PointENU point(x,y,0,0,pointEnu.hdg);
         if (j == 0){
             previous_point = point;
         } else {

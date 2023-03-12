@@ -102,7 +102,7 @@ int XmlParserUtil::ParsePointSet(const aptiv::hdmap::entity::CurveSegment &curve
     double delta_s = 0.2;
     double s = curveSegment.s;
     if (delta_s > curveSegment.length){
-        delta_s = curveSegment.length;
+        delta_s = curveSegment.length / 10 ;
     }
     int sample_num = int(curveSegment.length/delta_s);
     for (int i = 0; i < sample_num; ++i) {
