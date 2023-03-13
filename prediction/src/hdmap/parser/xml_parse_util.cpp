@@ -67,6 +67,7 @@ int XmlParserUtil::ParseCurve(const tinyxml2::XMLElement& xml_node,
             LineSegment lineSegment;
             ParsePointSet(*curve_segment, &lineSegment);
             curve_segment->lineSegment = lineSegment;
+            curve_segment->curveType = entity::CurveSegment::CurveType_Line;
             return 0;
         } else {
             const tinyxml2::XMLElement* arc_node = xml_node.FirstChildElement("arc");
@@ -77,9 +78,11 @@ int XmlParserUtil::ParseCurve(const tinyxml2::XMLElement& xml_node,
 
                 PointENU pointEnu(ptx,pty,ptz,s,hdg);
 //        WGS84ToUTM(ptx, pty, ptz, &output_x, &output_y, &output_z);
+                pointEnu.curveture = curvature;
                 curve_segment->start_position = pointEnu;
                 curve_segment->length = length;
                 curve_segment->heading = hdg;
+                curve_segment->curveType = entity::CurveSegment::CurveType_ARC;
                 int checker = tinyxml2::XML_SUCCESS;
                 checker += arc_node->QueryDoubleAttribute("curvature", &curvature);
                 ParsePointSet(*curve_segment, &curve_segment->lineSegment,curvature);
