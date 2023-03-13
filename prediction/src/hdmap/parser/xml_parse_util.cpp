@@ -73,6 +73,7 @@ int XmlParserUtil::ParseCurve(const tinyxml2::XMLElement& xml_node,
             const tinyxml2::XMLElement* arc_node = xml_node.FirstChildElement("arc");
             if (arc_node){
                 double curvature;
+                checker += arc_node->QueryDoubleAttribute("curvature", &curvature);
 
                 curve_segment->s = s;
 
@@ -84,7 +85,6 @@ int XmlParserUtil::ParseCurve(const tinyxml2::XMLElement& xml_node,
                 curve_segment->heading = hdg;
                 curve_segment->curveType = entity::CurveSegment::CurveType_ARC;
                 int checker = tinyxml2::XML_SUCCESS;
-                checker += arc_node->QueryDoubleAttribute("curvature", &curvature);
                 ParsePointSet(*curve_segment, &curve_segment->lineSegment,curvature);
 
                 return 0;

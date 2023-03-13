@@ -38,9 +38,12 @@ private:
     static int ParseCurveArc(MpLane* lane,
                           double d_offset,
                           aptiv::hdmap::entity::CurveSegment curveSegment);
-    static int ParseCurve(MpLane* lane,
+    static int ParseLeftCurve(MpLane* lane,
                             double d_offset,
                             aptiv::hdmap::entity::CurveSegment curveSegment);
+    static int ParseRightCurve(MpLane* lane,
+                              double d_offset,
+                              aptiv::hdmap::entity::CurveSegment curveSegment);
     static int ParseLeftRoadSampleAssociates(
             const tinyxml2::XMLElement& xml_node, Lane* lane);
     static int ParseRightRoadSampleAssociates(
