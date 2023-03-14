@@ -125,23 +125,17 @@ int RoadXmlParser::Parse(const tinyxml2::XMLElement &node, RoadInternal* roads) 
 
                 std::string id_str = roadInternal.id;
                 reference_line.segment.push_back(curveSegment);
+
+//                for (int i = 0; i < curveSegment.lineSegment.points.size(); ++i) {
+//                        PointENU point = curveSegment.lineSegment.points[i];
+//                        LOG(ERROR)<< point.x <<","<<point.y;
+//                }
                 //lanes
                 std::vector<RoadSectionInternal> road_section_internals;
                 LaneXmlParser::Parse(*road_node,id_str,&road_section_internals,curveSegment);
                 roads->sections = road_section_internals;
                 geometry_node = geometry_node->NextSiblingElement("geometry");
             }
-
-            LOG(ERROR)<< "----------------REFERECE LINE START ------------------";
-            LOG(ERROR)<< "ROAD ID : " << roadInternal.id;
-            for (int i = 0; i < reference_line.segment.size(); ++i) {
-                for (int j = 0; j < reference_line.segment[i].lineSegment.points.size(); ++j) {
-                    PointENU point = reference_line.segment[i].lineSegment.points[j];
-                    LOG(ERROR)<< point.x <<","<<point.y;
-
-                }
-            }
-            LOG(ERROR)<< "----------------REFERECE LINE END ------------------";
 
 //            LOG(ERROR)<< "----------------CENTER LINE START ------------------";
 //            LOG(ERROR)<< "ROAD ID : " << roadInternal.id;

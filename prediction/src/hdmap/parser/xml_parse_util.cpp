@@ -102,24 +102,29 @@ int XmlParserUtil::ParseCurve(const tinyxml2::XMLElement& xml_node,
 int XmlParserUtil::ParsePointSet(const aptiv::hdmap::entity::CurveSegment &curveSegment,
                                  aptiv::hdmap::entity::LineSegment *line_segment) {
 
+//    LOG(ERROR)<< "----------------REFERECE LINE START ------------------";
     double delta_s = 0.2;
     double s = curveSegment.s;
     if (delta_s > curveSegment.length){
-        delta_s = curveSegment.length / 10 ;
+        delta_s = curveSegment.length ;
     }
     int sample_num = int(curveSegment.length/delta_s);
     for (int i = 0; i < sample_num; ++i) {
         double x = curveSegment.start_position.x + (delta_s * i) * cos(curveSegment.start_position.hdg);
         double y = curveSegment.start_position.y + (delta_s * i) * sin(curveSegment.start_position.hdg);
         PointENU point(x,y,0,s,curveSegment.heading);
+//        LOG(ERROR) << x << "," << y;
         s += delta_s;
         line_segment->points.push_back(point);
     }
+
+//    LOG(ERROR)<< "----------------REFERECE LINE END ------------------";
 }
 
 int XmlParserUtil::ParsePointSet(const aptiv::hdmap::entity::CurveSegment &curveSegment,
                                  aptiv::hdmap::entity::LineSegment *line_segment,
                                  double curvature) {
+//    LOG(ERROR)<< "----------------REFERECE LINE START ------------------";
 
     double delta_s = 0.2;
     if (delta_s > curveSegment.length){
@@ -144,10 +149,12 @@ int XmlParserUtil::ParsePointSet(const aptiv::hdmap::entity::CurveSegment &curve
             s += hypot((xd - previous_point_ptr->x),(yd - previous_point_ptr->y));
         }
         PointENU* pointEnu = new PointENU(xd,yd,0,s,tangent);
+//        LOG(ERROR) << xd << "," << yd;
         pointEnu->curveture = curvature;
         previous_point_ptr.reset(pointEnu);
         line_segment->points.push_back(*pointEnu);
     }
+//    LOG(ERROR)<< "----------------REFERECE LINE END ------------------";
 
 }
 }
