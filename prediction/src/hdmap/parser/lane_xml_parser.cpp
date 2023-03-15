@@ -490,12 +490,12 @@ int LaneXmlParser::ParseCenterCurve(LaneInternal* laneInternal,
     double hdg = curveSegment_.start_position.hdg;
     double cos_hdg = cos(hdg);
     double sin_hdg = sin(hdg);
-    double theta = 0;
-    if (x < 0 && y < 0 && hdg < 0){
-        theta =  0;
-    }else if (x < 0 && y < 0 && hdg > 0){
-        theta =  M_PI + M_PI_2;
-    }
+    double theta = M_PI_2 + hdg;
+//    if (x < 0 && y < 0 && hdg < 0){
+//        theta =  0;
+//    }else if (x < 0 && y < 0 && hdg > 0){
+//        theta =  M_PI + M_PI_2;
+//    }
     double cos_theta = cos(theta);
     double sin_theta = sin(theta);
 //    LOG(ERROR) << "--------------------- CENTER LINE START---------------------";
