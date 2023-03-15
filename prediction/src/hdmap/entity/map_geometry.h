@@ -21,6 +21,7 @@ struct PointENU{
 
 struct LineSegment{
     std::vector<PointENU> points;
+    double delta_alfa = 0.0;
 };
 
 struct CurveSegment{
@@ -37,6 +38,8 @@ struct CurveSegment{
     double s;
     double laneOffset;
     PointENU start_position;
+    PointENU end_position;
+    bool isFirstcurva;
     double heading;
     double length;
 };

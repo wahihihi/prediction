@@ -80,7 +80,6 @@ public:
     };
     LaneDirection laneDirection = LaneDirection::FORWARD;
 
-
     std::vector<LaneSampleAssociation> left_road_sample;
     std::vector<LaneSampleAssociation> right_road_sample;
 

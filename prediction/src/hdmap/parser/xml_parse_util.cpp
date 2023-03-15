@@ -139,14 +139,18 @@ int XmlParserUtil::ParsePointSet(const aptiv::hdmap::entity::CurveSegment &curve
     double cos_hdg = cos(curveSegment.heading);
     int sample_num = int(curveSegment.length/delta_s);
     std::shared_ptr<PointENU> previous_point_ptr;
+    double acc_alfa = 0;
+    double delta_alfa = 0;
+//    LOG(ERROR) << "----------------reference line------------";
     for (int i = 0; i < sample_num; ++i) {
         const double ref_line_ds = delta_s * i;
         const double angle_at_s = ref_line_ds * curvature - M_PI / 2;
         const double xd = radius * (cos(hdg + angle_at_s) - sin_hdg) + x;
         const double yd = radius * (sin(hdg + angle_at_s) + cos_hdg) + y;
-        const double tangent = hdg + delta_s * curvature;
+        const double tangent = hdg + angle_at_s;
         if (previous_point_ptr != nullptr){
             s += hypot((xd - previous_point_ptr->x),(yd - previous_point_ptr->y));
+            acc_alfa += tangent- previous_point_ptr->hdg ;
         }
         PointENU* pointEnu = new PointENU(xd,yd,0,s,tangent);
 //        LOG(ERROR) << xd << "," << yd;
@@ -154,6 +158,9 @@ int XmlParserUtil::ParsePointSet(const aptiv::hdmap::entity::CurveSegment &curve
         previous_point_ptr.reset(pointEnu);
         line_segment->points.push_back(*pointEnu);
     }
+//    LOG(ERROR) << "----------------reference line------------";
+    delta_alfa = acc_alfa / sample_num;
+    line_segment->delta_alfa = delta_alfa;
 //    LOG(ERROR)<< "----------------REFERECE LINE END ------------------";
 
 }

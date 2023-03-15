@@ -16,12 +16,16 @@ namespace hdmap{
 namespace parser{
 class LaneXmlParser {
 public:
-    static int Parse(const tinyxml2::XMLElement& xml_node,
+    LaneXmlParser() = default;
+    LaneXmlParser(RoadSectionInternal roadSectionInternal_) :lastRoadSectionInternal(roadSectionInternal_){}
+    int Parse(const tinyxml2::XMLElement& xml_node,
                      const std::string id,
-                     std::vector<RoadSectionInternal>* roadSections,
+                     RoadSectionInternal* roadSection,
                      aptiv::hdmap::entity::CurveSegment curveSegment);
+    bool isFirstSection;
+    RoadSectionInternal lastRoadSectionInternal;
 private:
-    static int ParseLaneSection(const tinyxml2::XMLElement& xml_node,
+    int ParseLaneSection(const tinyxml2::XMLElement& xml_node,
                                std::vector<LaneInternal>* lanes,
                                 double d_offset,
                                aptiv::hdmap::entity::CurveSegment curveSegment);
@@ -30,9 +34,9 @@ private:
                                     BoundaryPolygon* boundary);
     static int ParseLane(const tinyxml2::XMLElement& xml_node,
                          MpLane* lane);
-    static int ParseCenterLane(const tinyxml2::XMLElement& xml_node,
+    int ParseCenterLane(const tinyxml2::XMLElement& xml_node,
                          LaneInternal* lane_internal);
-    static int ParseCenterCurve(LaneInternal* laneInternal,
+    int ParseCenterCurve(LaneInternal* laneInternal,
                                 double d_offset,
                                 aptiv::hdmap::entity::CurveSegment curveSegment);
     static int ParseCurveArc(MpLane* lane,
@@ -52,7 +56,9 @@ private:
             const tinyxml2::XMLElement& xml_node, Lane* lane);
     static void ParseLaneLink(const tinyxml2::XMLElement& xml_node, Lane* lane);
 
-    static int ToPbLaneType(const std::string& type, Lane::LaneType* lane_type);
+    int ToPbLaneType(const std::string& type, Lane::LaneType* lane_type);
+
+
 };
 
 }

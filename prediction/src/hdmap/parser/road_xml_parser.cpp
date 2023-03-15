@@ -117,23 +117,31 @@ int RoadXmlParser::Parse(const tinyxml2::XMLElement &node, RoadInternal* roads) 
         //get planView
         const tinyxml2::XMLElement* planview_node = road_node->FirstChildElement("planView");
         if (planview_node){
+            RoadSectionInternal lastRoadSectionInternal;
             const tinyxml2::XMLElement* geometry_node = planview_node->FirstChildElement("geometry");
+            LaneXmlParser laneXmlParser(lastRoadSectionInternal);
+            laneXmlParser.isFirstSection = true;
             Curve reference_line;
+            size_t idx = 0;
             while (geometry_node){
+                ++idx;
+                RoadSectionInternal roadSectionInternal;
                 CurveSegment curveSegment;
                 XmlParserUtil::ParseGeometry(*geometry_node,&curveSegment);
 
                 std::string id_str = roadInternal.id;
                 reference_line.segment.push_back(curveSegment);
-
 //                for (int i = 0; i < curveSegment.lineSegment.points.size(); ++i) {
 //                        PointENU point = curveSegment.lineSegment.points[i];
 //                        LOG(ERROR)<< point.x <<","<<point.y;
 //                }
                 //lanes
                 std::vector<RoadSectionInternal> road_section_internals;
-                LaneXmlParser::Parse(*road_node,id_str,&road_section_internals,curveSegment);
-                roads->sections = road_section_internals;
+                laneXmlParser.Parse(*road_node,id_str,&roadSectionInternal,curveSegment);
+                laneXmlParser.isFirstSection = false;
+                roadSectionInternal.id = idx;
+                laneXmlParser.lastRoadSectionInternal = roadSectionInternal;
+                roads->sections.push_back(roadSectionInternal);
                 geometry_node = geometry_node->NextSiblingElement("geometry");
             }
 
