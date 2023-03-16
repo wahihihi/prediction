@@ -477,11 +477,12 @@ int LaneXmlParser::ParseCenterCurve(LaneInternal* laneInternal,
         }
     }
     PointENU start_point = curveSegment.start_position;
-    if (isFirstSection){
-        curveSegment_ = curveSegment;
-    }else{
-        curveSegment_ = laneInternal_.lane.central_curve.segment.at(0);
-    }
+//    if (isFirstSection){
+//        curveSegment_ = curveSegment;
+//    }else{
+//        curveSegment_ = laneInternal_.lane.central_curve.segment.at(0);
+//    }
+    curveSegment_ = curveSegment;
     double delta_s = 0.2;
     PointENU center_start_point;
     double s = curveSegment_.s;
@@ -490,7 +491,16 @@ int LaneXmlParser::ParseCenterCurve(LaneInternal* laneInternal,
     double hdg = curveSegment_.start_position.hdg;
     double cos_hdg = cos(hdg);
     double sin_hdg = sin(hdg);
-    double theta = M_PI_2 + hdg;
+    double theta = M_PI + hdg;
+    if (hdg < M_PI_2){
+        theta = M_PI_2 - hdg;
+    }else if (M_PI < hdg < M_PI_2){
+        theta = M_PI - hdg;
+    }else if ((M_PI+M_PI_2) < hdg < M_PI){
+        theta = (M_PI+M_PI_2) - hdg;
+    }else if ( (2 * M_PI) < hdg < (M_PI+M_PI_2)){
+        theta = (2 * M_PI) - hdg;
+    }
 //    if (x < 0 && y < 0 && hdg < 0){
 //        theta =  0;
 //    }else if (x < 0 && y < 0 && hdg > 0){
@@ -531,22 +541,51 @@ int LaneXmlParser::ParseCenterCurve(LaneInternal* laneInternal,
         res_curveSegment.end_position = res_curveSegment.lineSegment.points[lineSegment_size-1];
         res_curveSegment.heading = res_curveSegment.lineSegment.points[lineSegment_size-1].hdg;
     }else if (curveSegment.curveType == entity::CurveSegment::CurveType_ARC){
+        double internal_start_x = x + d_offset * cos_theta;
+        double internal_start_y = y - d_offset * sin_theta;
         double curvature = start_point.curveture;
-        center_start_point.curveture = curvature;
         double radius = 1 / curvature;
         size_t lineSegment_size =curveSegment.lineSegment.points.size();
-        for (size_t i = 0; i < lineSegment_size; ++i) {
-            const double ref_line_ds = delta_s * i;
-            const double angle_at_s = ref_line_ds * curvature - M_PI / 2;
-            const double xd = radius * (cos(hdg + angle_at_s) - sin_hdg) + x;
-            const double yd = radius * (sin(hdg + angle_at_s) + cos_hdg) + y;
-            const double tangent = hdg + ref_line_ds * curvature;
+        for (size_t i = 0; i < curveSegment.lineSegment.points.size(); ++i) {
+            PointENU point = curveSegment.lineSegment.points.at(i);
+            double x = point.x;
+            double y = point.y;
+
+//            LOG(ERROR)<< point.x << "," << point.y<< "<<<<" ;
+            double k = 0;
+            if (i == 0 ) {
+                PointENU point2 = curveSegment.lineSegment.points.at(i+1);
+                double last_x = point2.x;
+                double last_y = point2.y;
+                k = (last_y - y)/(last_x - x);
+            }else{
+                PointENU point2 = curveSegment.lineSegment.points.at(i-1);
+                double last_x = point2.x;
+                double last_y = point2.y;
+                k = (y - last_y)/(x - last_x);
+            }
+            double b = y-k*x;
+            double x_ = 0.0;
+            double y_ = 0.0;
+            // Calculate the coordinates on the vertical line
+            double alpha =  0;
+            double beta =  0;
+            double gama =  0;
+            alpha = 1+(1/ pow(k,2));
+            beta = (2*y/k-2*x)+(-2*x-2*1/pow(k,2)*x-2*1/k*b);
+            gama = pow(((pow(k,2)+1)/k),2)*pow(x,2)+2*((pow(k,2)+1)/k)*b*x+pow(b,2)-2*x*y*k-2*x*y*1/k-2*y*b+pow(x,2)+ pow(y,2)-
+                                                                                                                      pow(d_offset,2);
+            math::CommonMath commonMath;
+            std::tuple<double,double> res = commonMath.univariateQuadraticEquation(alpha,beta,gama);
+            x_ = std::get<0>(res);
+            const double xd = std::get<0>(res);
+            const double yd = -1/k*x_+(k+1/k)*x+b;
+            const double tangent = hdg + delta_s * curvature;
             PointENU* pointEnu = new PointENU(xd,yd,0,s,tangent);
             s += delta_s;
+            LOG(ERROR) << xd << "," << yd;
             pointEnu->curveture = curvature;
             res_curveSegment.lineSegment.points.push_back(*pointEnu);
-            LOG(ERROR) << xd << "," << yd;
-//            LOG(ERROR) << "ARC";
         }
         res_curveSegment.s = res_curveSegment.lineSegment.points[lineSegment_size-1].s;
         res_curveSegment.start_position = res_curveSegment.lineSegment.points[lineSegment_size-1];

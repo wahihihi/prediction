@@ -149,6 +149,8 @@ add_executable(${PROJECT_NAME}_node
         lib/tinyxml2.h
         lib/tinyxml2.cpp
         include/prediction/common_include.h
+        src/math/CommonMath.h
+        src/math/CommonMath.cpp
         src/hdmap/parser/xml_parse_util.cpp
         src/hdmap/parser/xml_parse_util.h
         src/hdmap/parser/common_define.h

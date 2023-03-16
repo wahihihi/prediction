@@ -12,7 +12,7 @@
 int main(int argc,char **argv)
 {
     google::InitGoogleLogging(argv[0]);
-    FLAGS_logtostderr = true; // 是否将日志输出到stderr而非文件。
+    FLAGS_logtostderr = false; // 是否将日志输出到stderr而非文件。
     FLAGS_alsologtostderr = false; //是否将日志输出到文件和stderr，如果：true，忽略FLAGS_stderrthreshold的限制，所有信息打印到终端。
     FLAGS_stderrthreshold = google::GLOG_WARNING; //输出到stderr的限值，默认为2（ERROR），默认ERORR以下的信息(INFO、WARNING)不打印到终端。
     FLAGS_minloglevel = 2;

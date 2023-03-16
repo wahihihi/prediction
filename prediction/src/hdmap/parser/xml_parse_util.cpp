@@ -119,6 +119,7 @@ int XmlParserUtil::ParsePointSet(const aptiv::hdmap::entity::CurveSegment &curve
     }
 
 //    LOG(ERROR)<< "----------------REFERECE LINE END ------------------";
+    return 1;
 }
 
 int XmlParserUtil::ParsePointSet(const aptiv::hdmap::entity::CurveSegment &curveSegment,
@@ -162,7 +163,7 @@ int XmlParserUtil::ParsePointSet(const aptiv::hdmap::entity::CurveSegment &curve
     delta_alfa = acc_alfa / sample_num;
     line_segment->delta_alfa = delta_alfa;
 //    LOG(ERROR)<< "----------------REFERECE LINE END ------------------";
-
+    return 1;
 }
 }
 }

@@ -8,6 +8,7 @@
 #include "hdmap/entity/map_road.h"
 #include "hdmap/parser/common_define.h"
 #include "hdmap/parser/road_xml_parser.h"
+#include "math/CommonMath.h"
 using namespace aptiv::hdmap::parser;
 using namespace aptiv::hdmap::entity;
 
