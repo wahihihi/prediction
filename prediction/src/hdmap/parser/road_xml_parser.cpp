@@ -114,13 +114,29 @@ int RoadXmlParser::Parse(const tinyxml2::XMLElement &node, RoadInternal* roads) 
 
         }
 
+        //get corner
+        std::string corner_str;
+        bool isCorner = false;
+        const tinyxml2::XMLElement* userdata_node = road_node->FirstChildElement("userData");
+        if (userdata_node){
+            const tinyxml2::XMLElement* vectorroad_node = userdata_node->FirstChildElement("vectorRoad");
+            if (vectorroad_node){
+                XmlParserUtil::QueryStringAttribute(*vectorroad_node,"corner",&corner_str);
+                if (corner_str.compare("yes") == 0){
+                    isCorner = true;
+                }else{
+                    isCorner = false;
+                }
+            }
+        }
+
         //get planView
         const tinyxml2::XMLElement* planview_node = road_node->FirstChildElement("planView");
         if (planview_node){
             RoadSectionInternal lastRoadSectionInternal;
             const tinyxml2::XMLElement* geometry_node = planview_node->FirstChildElement("geometry");
             LaneXmlParser laneXmlParser(lastRoadSectionInternal);
-            laneXmlParser.isFirstSection = true;
+            laneXmlParser.isCorner = isCorner;
             Curve reference_line;
             size_t idx = 0;
             while (geometry_node){
@@ -135,10 +151,9 @@ int RoadXmlParser::Parse(const tinyxml2::XMLElement &node, RoadInternal* roads) 
 //                        PointENU point = curveSegment.lineSegment.points[i];
 //                        LOG(ERROR)<< point.x <<","<<point.y;
 //                }
-                //lanes
+//                lanes
                 std::vector<RoadSectionInternal> road_section_internals;
                 laneXmlParser.Parse(*road_node,id_str,&roadSectionInternal,curveSegment);
-                laneXmlParser.isFirstSection = false;
                 roadSectionInternal.id = idx;
                 laneXmlParser.lastRoadSectionInternal = roadSectionInternal;
                 roads->sections.push_back(roadSectionInternal);
@@ -153,6 +168,7 @@ int RoadXmlParser::Parse(const tinyxml2::XMLElement &node, RoadInternal* roads) 
 //            }
 //            LOG(ERROR)<< "----------------CENTER LINE END ------------------";
         }
+
 
         road_node = road_node->NextSiblingElement("road");
     }

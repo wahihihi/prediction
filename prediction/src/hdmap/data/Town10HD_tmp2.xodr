@@ -1436,6 +1436,10 @@
             <predecessor elementType="road" elementId="19" contactPoint="end"/>
             <successor elementType="road" elementId="14" contactPoint="end"/>
         </link>
+
+        <userData>
+            <vectorRoad corner="yes"/>
+        </userData>
         <planView>
             <geometry s="0.0000000000000000e+0" x="-6.6847682833629221e+1" y="-3.2248314344499875e+1" hdg="-2.7785214063844599e-3" length="2.6162950225946653e+0">
                 <line/>
@@ -1597,9 +1601,6 @@
                 </center>
             </laneSection>
         </lanes>
-        <userData>
-            <vectorRoad corner="yes"/>
-        </userData>
     </road>
     <road name="Road 268" length="2.7673719008224900e+1" id="268" junction="189">
         <link>
@@ -1806,6 +1807,10 @@
             <predecessor elementType="road" elementId="19" contactPoint="end"/>
             <successor elementType="road" elementId="15" contactPoint="start"/>
         </link>
+
+        <userData>
+            <vectorRoad corner="yes"/>
+        </userData>
         <planView>
             <geometry s="0.0000000000000000e+0" x="-6.6781986585049850e+1" y="-8.7484061709816476e+0" hdg="6.2804067857732013e+0" length="7.5859272163397584e-1">
                 <line/>
@@ -1883,9 +1888,6 @@
                 </userData>
             </signal>
         </signals>
-        <userData>
-            <vectorRoad corner="yes"/>
-        </userData>
     </road>
     <road name="Road 286" length="2.6851082602322876e+1" id="286" junction="189">
         <link>
@@ -2394,6 +2396,9 @@
             <predecessor elementType="road" elementId="20" contactPoint="start"/>
             <successor elementType="road" elementId="14" contactPoint="end"/>
         </link>
+        <userData>
+            <vectorRoad corner="yes"/>
+        </userData>
         <planView>
             <geometry s="0.0000000000000000e+0" x="-2.8738170653972787e+1" y="-3.2354202712370515e+1" hdg="3.1388141321834082e+0" length="7.5937596803857055e-1">
                 <line/>
@@ -2448,6 +2453,7 @@
             <superelevation s="1.5280848326280557e+1" a="0.0000000000000000e+0" b="0.0000000000000000e+0" c="0.0000000000000000e+0" d="0.0000000000000000e+0"/>
             <superelevation s="1.5430848326280563e+1" a="0.0000000000000000e+0" b="0.0000000000000000e+0" c="0.0000000000000000e+0" d="0.0000000000000000e+0"/>
         </lateralProfile>
+
         <lanes>
             <laneOffset s="0.0000000000000000e+0" a="6.6349999999999980e+0" b="0.0000000000000000e+0" c="2.4827095943014193e-17" d="-1.1297227932974396e-18"/>
             <laneOffset s="1.4650848326280562e+1" a="6.6349999999999962e+0" b="0.0000000000000000e+0" c="0.0000000000000000e+0" d="0.0000000000000000e+0"/>
@@ -2539,9 +2545,6 @@
                 </userData>
             </signal>
         </signals>
-        <userData>
-            <vectorRoad corner="yes"/>
-        </userData>
     </road>
     <road name="Road 338" length="3.5614154675241238e+1" id="338" junction="189">
         <link>
@@ -2891,6 +2894,9 @@
             <predecessor elementType="road" elementId="20" contactPoint="start"/>
             <successor elementType="road" elementId="15" contactPoint="start"/>
         </link>
+        <userData>
+            <vectorRoad corner="yes"/>
+        </userData>
         <planView>
             <geometry s="0.0000000000000000e+0" x="-2.8672534772552581e+1" y="-8.8542943711204245e+0" hdg="3.1388141321834087e+0" length="8.0938359793981662e-1">
                 <line/>
@@ -3083,9 +3089,6 @@
                 </center>
             </laneSection>
         </lanes>
-        <userData>
-            <vectorRoad corner="yes"/>
-        </userData>
     </road>
     <road name="Road 375" length="3.5021380700358378e+1" id="375" junction="189">
         <link>

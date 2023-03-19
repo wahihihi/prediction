@@ -23,7 +23,7 @@ public:
                      const std::string id,
                      RoadSectionInternal* roadSection,
                      aptiv::hdmap::entity::CurveSegment curveSegment);
-    bool isFirstSection;
+    bool isCorner;
     RoadSectionInternal lastRoadSectionInternal;
 private:
     int ParseLaneSection(const tinyxml2::XMLElement& xml_node,
@@ -43,10 +43,10 @@ private:
     static int ParseCurveArc(MpLane* lane,
                           double d_offset,
                           aptiv::hdmap::entity::CurveSegment curveSegment);
-    static int ParseLeftCurve(MpLane* lane,
+    int ParseLeftCurve(MpLane* lane,
                             double d_offset,
                             aptiv::hdmap::entity::CurveSegment curveSegment);
-    static int ParseRightCurve(MpLane* lane,
+    int ParseRightCurve(MpLane* lane,
                               double d_offset,
                               aptiv::hdmap::entity::CurveSegment curveSegment);
     static int ParseLeftRoadSampleAssociates(
