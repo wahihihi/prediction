@@ -23,6 +23,7 @@ struct LaneSampleAssociation{
 };
 
 struct LaneWidth{
+    std::string lane_id;
     double sOffset=0.0;
     double a=0.0;
     double b=0.0;
