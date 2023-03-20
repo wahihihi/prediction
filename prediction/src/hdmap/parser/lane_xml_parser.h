@@ -37,6 +37,9 @@ private:
                          MpLane* lane);
     int ParseCenterLane(const tinyxml2::XMLElement& xml_node,
                          LaneInternal* lane_internal);
+    int ParseLeftCenterCurve(LaneInternal* laneInternal,
+                         double d_offset,
+                         aptiv::hdmap::entity::CurveSegment curveSegment);
     int ParseCenterCurve(LaneInternal* laneInternal,
                                 double d_offset,
                                 aptiv::hdmap::entity::CurveSegment curveSegment);
