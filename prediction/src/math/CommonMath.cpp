@@ -3,10 +3,13 @@
 //
 
 #include "CommonMath.h"
-
+#include <Eigen/Core>
 namespace aptiv{
 namespace math{
     using namespace std;
+Eigen::Vector2d unit_vect{1,1};
+
+double computer
 std::tuple<double, double> CommonMath::univariateQuadraticEquation(const double a_, const double b_, const double c_) {
     double discriminant, realPart, imaginaryPart;
     double a,b,c,x1,x2;

@@ -33,6 +33,7 @@ struct LaneWidth{
 };
 
 struct LaneOffset{
+    double d_offset;
     double s;
     double a;
     double b;

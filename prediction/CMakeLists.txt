@@ -120,6 +120,7 @@ catkin_package(
 include_directories(include)
 include_directories(lib)
 include_directories(src)
+include_directories( "/usr/include/eigen3" )
 
 include_directories(
 # include

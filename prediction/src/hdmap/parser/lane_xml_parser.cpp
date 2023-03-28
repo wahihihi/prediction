@@ -4,10 +4,18 @@
 
 #include "lane_xml_parser.h"
 #include <iostream>
-//#define print_center
+#define print_center
 //#define print_left
-#define print_right
+//#define print_right
+
+#define SIN_270_ sin(3*M_PI_2)
+
+const double Epsilon = 0.000001;
+
 constexpr double kDuplicatedPointsEpsilon = 1e-7;
+const double SIN_360 = std::sin(3*M_PI_2);
+const double SIN_270 = std::sin(2*M_PI);
+
 namespace aptiv{
 namespace hdmap{
 namespace parser{
@@ -28,8 +36,7 @@ int LaneXmlParser::Parse(const tinyxml2::XMLElement &xml_node,
     double c =0.0;
     double d =0.0;
     double d_offset =0.0;
-    std::vector<MpLaneOffSet> lane_offset_arr;
-    size_t offset_idx = 0;
+    std::vector<MpLaneOffSet> lane_offset_vec;
     while (laneOffset_node){
         laneOffset_node->QueryDoubleAttribute("s",&sOffset);
         laneOffset_node->QueryDoubleAttribute("a",&a);
@@ -47,7 +54,8 @@ int LaneXmlParser::Parse(const tinyxml2::XMLElement &xml_node,
                    lane_offset.b * lane_offset.s +
                    lane_offset.c * pow(lane_offset.s,2) +
                    lane_offset.d * pow(lane_offset.s,3);
-
+        lane_offset.d_offset = d_offset;
+        lane_offset_vec.push_back(lane_offset);
         // split curve segment by sOffset
         CurveSegment lane_curve_segment;
         PointENU start_point;
@@ -60,19 +68,26 @@ int LaneXmlParser::Parse(const tinyxml2::XMLElement &xml_node,
         lane_curve_segment.laneOffset     = lane_offset.s;
         lane_curve_segment.start_position = start_point;
         lane_curve_segment.heading        = start_point.hdg;
-
-        if (lane_offset.s >= lane_curve_segment.s){
-            std::vector<LaneInternal> lanes;
-            const tinyxml2::XMLElement* laneSection_node = lanes_node->FirstChildElement("laneSection");
-            ParseLaneSection(*laneSection_node,&lanes,d_offset,lane_curve_segment);
-//            road_section_internal.lanes = lanes;
-            roadSection->lanes = lanes;
-            break;
-        }else{
-            ++offset_idx;
-            laneOffset_node = laneOffset_node->NextSiblingElement("laneOffset");
-        }
+        laneOffset_node = laneOffset_node->NextSiblingElement("laneOffset");
     }
+    size_t offset_idx = 0;
+    for (size_t i = 0; i < lane_offset_vec.size(); ++i) {
+        MpLaneOffSet laneOffSet = lane_offset_vec.at(i);
+        if (i == lane_offset_vec.size()){
+            offset_idx = i;
+            break;
+        }
+        if (curveSegment.s >= laneOffSet.s)
+            continue;
+        offset_idx = i - 1;
+        break;
+    }
+    std::vector<LaneInternal> lanes;
+    const tinyxml2::XMLElement* laneSection_node = lanes_node->FirstChildElement("laneSection");
+    ParseLaneSection(*laneSection_node,&lanes,d_offset,curveSegment);
+//            road_section_internal.lanes = lanes;
+    roadSection->lanes = lanes;
+
     return 1;
 }
 bool compare1(LaneInternal l1,LaneInternal l2){
@@ -187,8 +202,8 @@ int LaneXmlParser::ParseLaneSection(const tinyxml2::XMLElement &xml_node,
             lane_node = lane_node->NextSiblingElement("lane");
         }
     }
+    double calc_left_width = 0.0;
     std::sort(lanes_left.begin(),lanes_left.end(), compare2);
-    double lane_widthd_left = 0.0;
     for (size_t i = 0; i < lanes_left.size(); ++i) {
         LaneInternal lane_left_internal = lanes_left.at(i);
         Lane lane;
@@ -208,37 +223,9 @@ int LaneXmlParser::ParseLaneSection(const tinyxml2::XMLElement &xml_node,
         LaneWidth lane_width = lane_left_internal.lane.lane_widths.at(idx_width);
         double sOffset = lane_width.sOffset;
         double ds = curveSegment.s + sOffset;
-        double calc_width = lane_width.a + lane_width.b * ds + lane_width.c * pow(ds,2) + lane_width.d * pow(ds,3);
+        calc_left_width += lane_width.a + lane_width.b * ds + lane_width.c * pow(ds,2) + lane_width.d * pow(ds,3);
 
-        ParseLeftCurve(&lane_left_internal.lane,calc_width,center_lane_internal.lane.central_curve.segment.at(0));
-
-//        for (size_t j = 0; j < lane_left_internal.lane.lane_widths.size(); ++j) {
-//            LaneWidth lane_width = lane_left_internal.lane.lane_widths.at(j);
-//
-//            double sOffset_ = lane_width.sOffset;
-//            double a = lane_width.a;
-//            double b = lane_width.b;
-//            double c = lane_width.c;
-//            double d = lane_width.d;
-//            if (isCorner){
-//                lane_widthd_left = (a +
-//                                    b * sOffset_ +
-//                                    c * pow(sOffset_,2) +
-//                                    d * pow(sOffset_,3));
-//            }else{
-//                lane_widthd_left += (a +
-//                                     b * sOffset_ +
-//                                     c * pow(sOffset_,2) +
-//                                     d * pow(sOffset_,3));
-//            }
-//            if (sOffset_ >= curveSegment.s){
-//                // compute left lane boundary
-//                ParseLeftCurve(&lane,lane_widthd_left,center_lane_internal.lane.central_curve.segment.at(0));
-//                break;
-//            }else {
-//                continue;
-//            }
-//        }
+        ParseLeftCurve(&lane_left_internal.lane,calc_left_width,center_lane_internal.lane.central_curve.segment.at(0));
     }
 
 
@@ -289,12 +276,6 @@ int LaneXmlParser::ParseLaneSection(const tinyxml2::XMLElement &xml_node,
 
                 width.lane_id = lane.id;
                 laneWidths.push_back(width);
-//                    // compute right lane boundary
-//                    ParseLeftCurve(&lane,lane_width,center_lane_internal.lane.central_curve.segment.at(0));
-//                    break;
-//                }else {
-//                    width_node = width_node->NextSiblingElement("width");
-//                }
                 width_node = width_node->NextSiblingElement("width");
             }
             lane.lane_widths = laneWidths;
@@ -304,8 +285,8 @@ int LaneXmlParser::ParseLaneSection(const tinyxml2::XMLElement &xml_node,
             lane_node = lane_node->NextSiblingElement("lane");
         }
     }
+    double calc_right_width = 0.0;
     std::sort(lanes_right.begin(),lanes_right.end(), compare1);
-    double lane_widthd_right = 0.0;
     for (size_t i = 0; i < lanes_right.size(); ++i) {
         LaneInternal lane_right_internal = lanes_right.at(i);
         Lane lane;
@@ -325,34 +306,9 @@ int LaneXmlParser::ParseLaneSection(const tinyxml2::XMLElement &xml_node,
         LaneWidth lane_width = lane_right_internal.lane.lane_widths.at(idx_width);
         double sOffset = lane_width.sOffset;
         double ds = curveSegment.s + sOffset;
-        double calc_width = lane_width.a + lane_width.b * ds + lane_width.c * pow(ds,2) + lane_width.d * pow(ds,3);
+        calc_right_width += lane_width.a + lane_width.b * ds + lane_width.c * pow(ds,2) + lane_width.d * pow(ds,3);
 
-        ParseRightCurve(&lane_right_internal.lane,calc_width,center_lane_internal.lane.central_curve.segment.at(0));
-
-
-//        for (size_t j = 0; j < lane_right_internal.lane.lane_widths.size(); ++j) {
-//            LaneWidth lane_width = lane_right_internal.lane.lane_widths.at(j);
-//            if (lane_width.lane_id.compare(lane_right_internal.lane.id) == 0){
-//                double sOffset_ = lane_width.sOffset;
-//                double a = lane_width.a;
-//                double b = lane_width.b;
-//                double c = lane_width.c;
-//                double d = lane_width.d;
-//                if (isCorner){
-//                    lane_widthd_right = (a +
-//                                         b * sOffset_ +
-//                                         c * pow(sOffset_,2) +
-//                                         d * pow(sOffset_,3));
-//                }else{
-//                    lane_widthd_right += (a +
-//                                          b * sOffset_ +
-//                                          c * pow(sOffset_,2) +
-//                                          d * pow(sOffset_,3));
-//                }
-//                // compute right lane boundary
-//                ParseRightCurve(&lane_right_internal.lane,lane_widthd_right,center_lane_internal.lane.central_curve.segment.at(0));
-//            }
-//        }
+        ParseRightCurve(&lane_right_internal.lane,calc_right_width,center_lane_internal.lane.central_curve.segment.at(0));
     }
 
     return 1;
@@ -493,19 +449,8 @@ int LaneXmlParser::ParseLeftCurve(MpLane* lane,
                    pow(d_offset,2);
             math::CommonMath commonMath;
             std::tuple<double,double> res = commonMath.univariateQuadraticEquation(alpha,beta,gama);
-            if (isCorner){
-                if (alpha > 1 && alpha < 2){
-                    x_ = std::min(std::get<1>(res),std::get<0>(res));
-                } else {
-                    x_ = std::max(std::get<1>(res),std::get<0>(res));
-                }
-            }else{
-                if (alpha > 1 && alpha < 2){
-                    x_ = std::max(std::get<1>(res),std::get<0>(res));
-                } else {
-                    x_ = std::min(std::get<1>(res),std::get<0>(res));
-                }
-            }
+            x_ = std::min(std::get<1>(res),std::get<0>(res));
+
             const double xd = x_;
             const double yd = -1/k*xd+(k+1/k)*x+b;
             PointENU pointEnu(xd,yd,0,s,point.hdg);
@@ -550,7 +495,22 @@ int LaneXmlParser::ParseLeftCurve(MpLane* lane,
                    pow(d_offset,2);
             math::CommonMath commonMath;
             std::tuple<double,double> res = commonMath.univariateQuadraticEquation(alpha,beta,gama);
-            x_ = std::min(std::get<1>(res),std::get<0>(res));
+
+            if (isCorner){
+                if (alpha > 1 && alpha < 2){
+                    x_ = std::min(std::get<1>(res),std::get<0>(res));
+                } else {
+                    x_ = std::max(std::get<1>(res),std::get<0>(res));
+                }
+            }else{
+                if (alpha > 1 && alpha < 2  ) {
+                    x_ = std::min(std::get<1>(res),std::get<0>(res));
+                } else if(SIN_270 - sin(center_curveSegment.heading) < Epsilon) {
+                    x_ = std::min(std::get<1>(res),std::get<0>(res));
+                }else{
+                    x_ = std::max(std::get<1>(res),std::get<0>(res));
+                }
+            }
             const double xd = x_;
             const double yd = -1/k*xd+(k+1/k)*x+b;
             const double tangent = hdg + delta_s * curvature;
