@@ -3,7 +3,7 @@
 //
 
 #include "xml_parse_util.h"
-//#define print_ref
+#define print_ref
 namespace aptiv {
 namespace hdmap {
 namespace parser {
@@ -115,7 +115,7 @@ int XmlParserUtil::ParsePointSet(const aptiv::hdmap::entity::CurveSegment &curve
         double y = curveSegment.start_position.y + (delta_s * i) * sin(curveSegment.start_position.hdg);
         PointENU point(x,y,0,s,curveSegment.heading);
 #ifdef print_ref
-        LOG(ERROR) << x << "," << y;
+        LOG(ERROR) << x << "," << y<<","<<curveSegment.heading ;
 #endif
         s += delta_s;
         line_segment->points.push_back(point);
@@ -158,7 +158,7 @@ int XmlParserUtil::ParsePointSet(const aptiv::hdmap::entity::CurveSegment &curve
         }
         PointENU* pointEnu = new PointENU(xd,yd,0,s,tangent);
 #ifdef print_ref
-        LOG(ERROR) << xd << "," << yd;
+        LOG(ERROR) << xd << "," << yd<<","<< tangent;
 #endif
         pointEnu->curveture = curvature;
         previous_point_ptr.reset(pointEnu);
