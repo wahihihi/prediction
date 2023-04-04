@@ -4,6 +4,7 @@
 
 #include "CommonMath.h"
 #include <Eigen/Core>
+#include <Eigen/Dense>
 namespace aptiv{
 namespace math{
 using namespace std;
@@ -39,6 +40,18 @@ std::tuple<double, double> CommonMath::univariateQuadraticEquation(const double 
 //        cout << "x2 = " << realPart << "-" << imaginaryPart << "i" << endl;
   }
   return {x1,x2};
+}
+
+int CommonMath::checkPosePointLeftOrRight(hdmap::entity::PointENU start_point,hdmap::entity::PointENU end_point,hdmap::entity::PointENU check_point){
+  const Eigen::Vector3d v1((check_point.x - start_point.x),(check_point.y - start_point.y),0);
+  const Eigen::Vector3d v2((check_point.x - end_point.x),(check_point.y - end_point.y),0);
+  Eigen::Vector3d v1_cross_v2 ;
+  v1_cross_v2 = v1.cross(v2);
+  if (v1_cross_v2[2] > 0){
+    return 1;
+  } else{
+    return 0;
+  }
 }
 
 }

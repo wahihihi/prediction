@@ -4,7 +4,7 @@
 
 #include "lane_xml_parser.h"
 #include <iostream>
-//#define print_center
+#define print_center
 //#define print_left
 //#define print_right
 
@@ -502,13 +502,13 @@ int LaneXmlParser::ParseLeftCurve(MpLane* lane,
       math::CommonMath commonMath;
       std::tuple<double,double> res = commonMath.univariateQuadraticEquation(alpha,beta,gama);
 
-      if (isCorner){
-        if (alpha > 1 && alpha < 2){
-          x_ = std::min(std::get<1>(res),std::get<0>(res));
-        } else {
-          x_ = std::max(std::get<1>(res),std::get<0>(res));
-        }
-      }else{
+//      if (isCorner){
+//        if (alpha > 1 && alpha < 2){
+//          x_ = std::min(std::get<1>(res),std::get<0>(res));
+//        } else {
+//          x_ = std::max(std::get<1>(res),std::get<0>(res));
+//        }
+//      }else{
 //        if (alpha > 1 && alpha < 2  ) {
 //          x_ = std::min(std::get<1>(res),std::get<0>(res));
 //        } else if(SIN_270 - sin(center_curveSegment.heading) < Epsilon) {
@@ -516,12 +516,11 @@ int LaneXmlParser::ParseLeftCurve(MpLane* lane,
 //        }else{
 //          x_ = std::max(std::get<1>(res),std::get<0>(res));
 //        }
-
-        if ( 0 < center_curveSegment.heading < M_PI/2 || M_PI < center_curveSegment.heading < 3*M_PI/2|| -M_PI < center_curveSegment.heading < -M_PI/2){
-          x_ = std::max(std::get<1>(res),std::get<0>(res));
-        } else if (-M_PI/2 < center_curveSegment.heading < 0 || M_PI/2 < center_curveSegment.heading < M_PI || -3*M_PI/2 < center_curveSegment.heading < -M_PI){
-          x_ = std::min(std::get<1>(res),std::get<0>(res));
-        }
+//      }
+      if ( 0 < center_curveSegment.heading < M_PI/2 || M_PI < center_curveSegment.heading < 3*M_PI/2|| -M_PI < center_curveSegment.heading < -M_PI/2){
+        x_ = std::max(std::get<1>(res),std::get<0>(res));
+      } else if (-M_PI/2 < center_curveSegment.heading < 0 || M_PI/2 < center_curveSegment.heading < M_PI || -3*M_PI/2 < center_curveSegment.heading < -M_PI){
+        x_ = std::min(std::get<1>(res),std::get<0>(res));
       }
       const double xd = x_;
       const double yd = -1/k*xd+(k+1/k)*x+b;
@@ -583,18 +582,24 @@ int LaneXmlParser::ParseRightCurve(MpLane* lane,
           pow(d_offset,2);
       math::CommonMath commonMath;
       std::tuple<double,double> res = commonMath.univariateQuadraticEquation(alpha,beta,gama);
-      if (isCorner){
-        if (alpha > 1 && alpha < 2){
-          x_ = std::min(std::get<1>(res),std::get<0>(res));
-        } else {
-          x_ = std::max(std::get<1>(res),std::get<0>(res));
-        }
-      }else{
-        if (alpha > 1 && alpha < 2){
-          x_ = std::max(std::get<1>(res),std::get<0>(res));
-        } else {
-          x_ = std::min(std::get<1>(res),std::get<0>(res));
-        }
+//      if (isCorner){
+//        if (alpha > 1 && alpha < 2){
+//          x_ = std::min(std::get<1>(res),std::get<0>(res));
+//        } else {
+//          x_ = std::max(std::get<1>(res),std::get<0>(res));
+//        }
+//      }else{
+//        if (alpha > 1 && alpha < 2){
+//          x_ = std::max(std::get<1>(res),std::get<0>(res));
+//        } else {
+//          x_ = std::min(std::get<1>(res),std::get<0>(res));
+//        }
+//      }
+
+      if ( 0 < center_curveSegment.heading < M_PI/2 || M_PI < center_curveSegment.heading < 3*M_PI/2|| -M_PI < center_curveSegment.heading < -M_PI/2){
+        x_ = std::max(std::get<1>(res),std::get<0>(res));
+      } else if (-M_PI/2 < center_curveSegment.heading < 0 || M_PI/2 < center_curveSegment.heading < M_PI || -3*M_PI/2 < center_curveSegment.heading < -M_PI){
+        x_ = std::min(std::get<1>(res),std::get<0>(res));
       }
       const double xd = x_;
       const double yd = -1/k*xd+(k+1/k)*x+b;
@@ -640,11 +645,20 @@ int LaneXmlParser::ParseRightCurve(MpLane* lane,
           pow(d_offset,2);
       math::CommonMath commonMath;
       std::tuple<double,double> res = commonMath.univariateQuadraticEquation(alpha,beta,gama);
-      if ( 0 < center_curveSegment.heading < M_PI/2 || M_PI < center_curveSegment.heading < 3*M_PI/2|| -M_PI < center_curveSegment.heading < -M_PI/2){
-        x_ = std::min(std::get<1>(res),std::get<0>(res));
-      } else if (-M_PI/2 < center_curveSegment.heading < 0 || M_PI/2 < center_curveSegment.heading < M_PI || -3*M_PI/2 < center_curveSegment.heading < -M_PI){
-        x_ = std::max(std::get<1>(res),std::get<0>(res));
-      }
+//      if ( 0 < center_curveSegment.heading < M_PI/2 || M_PI < center_curveSegment.heading < 3*M_PI/2|| -M_PI < center_curveSegment.heading < -M_PI/2){
+//        x_ = std::max(std::get<1>(res),std::get<0>(res));
+//      } else if (-M_PI/2 < center_curveSegment.heading < 0 || M_PI/2 < center_curveSegment.heading < M_PI || -3*M_PI/2 < center_curveSegment.heading < -M_PI){
+//        x_ = std::min(std::get<1>(res),std::get<0>(res));
+//      }
+//      if ( 0 < center_curveSegment.heading - M_PI < M_PI/2){
+//        x_ = std::max(std::get<1>(res),std::get<0>(res));
+//      } else if (-M_PI/2 < center_curveSegment.heading < 0 || M_PI/2 < center_curveSegment.heading < M_PI || -3*M_PI/2 < center_curveSegment.heading < -M_PI){
+//        x_ = std::min(std::get<1>(res),std::get<0>(res));
+//      }
+      const double x_max = std::max(std::get<1>(res),std::get<0>(res));
+      const double x_min = std::min(std::get<1>(res),std::get<0>(res));
+      const double y_max = -1/k*x_max+(k+1/k)*x+b;
+      const double y_min = -1/k*x_min+(k+1/k)*x+b;
       const double xd = x_;
       const double yd = -1/k*xd+(k+1/k)*x+b;
       const double tangent = hdg + delta_s * curvature;
@@ -863,21 +877,51 @@ int LaneXmlParser::ParseLeftCenterCurve(LaneInternal* laneInternal,
             pow(d_offset,2);
         math::CommonMath commonMath;
         std::tuple<double,double> res = commonMath.univariateQuadraticEquation(alpha,beta,gama);
-        if (alpha > 1 && alpha < 2){
-          x_ = std::max(std::get<1>(res),std::get<0>(res));
-        } else {
-          x_ = std::min(std::get<1>(res),std::get<0>(res));
+//        if (alpha > 1 && alpha < 2){
+//          x_ = std::max(std::get<1>(res),std::get<0>(res));
+//        } else {
+//          x_ = std::min(std::get<1>(res),std::get<0>(res));
+//        }
+
+        PointENU res_point;
+        if (M_PI/2 < curveSegment.heading < M_PI){
+
         }
-        const double xd = x_;
-        const double yd = -1/k*xd+(k+1/k)*x+b;
-        PointENU pointEnu(xd,yd,0,s,point.hdg);
+
+//
+//        const double x_min = std::min(std::get<1>(res),std::get<0>(res));
+////        const double xd = x_;
+//        const double y_max = -1/k*x_max+(k+1/k)*x+b;
+//        const double y_min = -1/k*x_min+(k+1/k)*x+b;
+//
+//        PointENU pointEnu_max(x_max,y_max,0,s,point.hdg);
+//        PointENU pointEnu_min(x_min,y_min,0,s,point.hdg);
+//        PointENU temp_point_1;
+//        PointENU temp_point_2 = point;
+//        if (i == 0){
+//          temp_point_1 = start_point;
+//        }else{
+//          if (i+1 < curveSegment.lineSegment.points.size()){
+//            temp_point_1 = curveSegment.lineSegment.points.at(i+1);
+//          } else{
+//            temp_point_1 = curveSegment.lineSegment.points.at(i-1);
+//            temp_point_2 = curveSegment.lineSegment.points.at(i);
+//          }
+//        }
+//        if (commonMath.checkPosePointLeftOrRight(temp_point_1,temp_point_2,pointEnu_max)){
+//          LOG(ERROR) << " left ";
+//          res_point = pointEnu_max;
+//        }else{
+//          LOG(ERROR) << " right";
+//          res_point = pointEnu_min;
+//        }
         s += delta_s;
 #ifdef print_center
-        LOG(ERROR) << xd << "," << yd<<","<<point.hdg;
+        LOG(ERROR) << res_point.x << "," << res_point.y<<","<<point.hdg;
 #endif
-        res_curveSegment.lineSegment.points.push_back(pointEnu);
+        res_curveSegment.lineSegment.points.push_back(res_point);
         if (i == 1){
-          first_point = pointEnu;
+          first_point = res_point;
         }
       }
     }
