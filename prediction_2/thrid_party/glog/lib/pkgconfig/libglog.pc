@@ -1,0 +1,11 @@
+prefix=/home/swh/catkin_ws/src/prediction/third_party/glog
+exec_prefix=/home/swh/catkin_ws/src/prediction/third_party/glog/bin
+libdir=/home/swh/catkin_ws/src/prediction/third_party/glog/lib
+includedir=/home/swh/catkin_ws/src/prediction/third_party/glog/include
+
+Name: libglog
+Description: Google Log (glog) C++ logging framework
+Version: 0.7.0
+Libs: -L${libdir} -lglog
+Libs.private: -lpthread -lgflags
+Cflags: -I${includedir}

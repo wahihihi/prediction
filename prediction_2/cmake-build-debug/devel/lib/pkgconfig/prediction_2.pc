@@ -1,0 +1,8 @@
+prefix=/home/ai/catkin_ws/src/prediction_2/cmake-build-debug/devel
+
+Name: prediction_2
+Description: Description of prediction_2
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

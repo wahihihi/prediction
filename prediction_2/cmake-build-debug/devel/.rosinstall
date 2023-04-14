@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/ai/catkin_ws/src/prediction_2/cmake-build-debug/devel/setup.sh
