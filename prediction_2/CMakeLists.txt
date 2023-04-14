@@ -150,6 +150,8 @@ link_directories(
 )
 file(GLOB PREDICTION_SRCS
         "src/*.cpp"
+        "src/adapter/*.cpp"
+        "src/common/spiral/*.cpp"
         )
 
 add_executable(${PROJECT_NAME}_node
